@@ -1,0 +1,23 @@
+name: MythicWeapon
+version: ${project.version}
+main: com.turtle.mythicweapon.MythicWeaponPlugin
+api-version: '1.21'
+folia-supported: true
+# depend: [TurtleCore]
+softdepend: [Nexo]
+description: Modular mythic weapon system with passive/active skills
+
+commands:
+  mythicweapon:
+    description: MythicWeapon main command
+    usage: /mythicweapon <give|list> [args]
+    permission: mythicweapon.admin
+    aliases: [mw]
+
+permissions:
+  mythicweapon.admin:
+    description: Access to MythicWeapon admin commands
+    default: op
+  mythicweapon.use:
+    description: Use MythicWeapon items
+    default: true

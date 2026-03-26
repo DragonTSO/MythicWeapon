@@ -1,0 +1,272 @@
+# ============================================================
+# MythicWeapon - Weapons Configuration
+# ============================================================
+# Mỗi weapon được định nghĩa bằng một block YAML.
+# Thêm vũ khí mới: chỉ cần copy block, đổi id/skill.
+#
+# Skill IDs có sẵn:
+#   Passive: bleed, lifesteal, fire, lightning, slow, poison, reflect_damage
+#   Active:  dash_strike, blind_target, area_slam, self_buff
+# ============================================================
+
+weapons:
+
+  scythe_blood:
+    display-name: "&4☠ &cScythe of Blood &4☠"
+    material: IRON_HOE
+    weapon-type: SCYTHE
+    custom-model-data: 0
+    # Nexo custom skin (requires Nexo plugin installed)
+    # Set this to a Nexo item ID to use its model/texture
+    # Example: nexo-id: "mythic_scythe"
+    nexo-id: "soul_skull_sickle"
+    unbreakable: true
+    lore:
+      - "&7Lưỡi hái tẩm độc máu cổ đại"
+      - ""
+      - "&c❖ Passive: &fChảy Máu"
+      - "  &730% cơ hội gây chảy máu 4s"
+      - "  &7(1.5 damage/giây)"
+      - ""
+      - "&b❖ Active: &fLướt Đao &7[Right-Click]"
+      - "  &7Lướt nhanh 5 block về phía trước"
+      - "  &7Đòn kế tiếp gây thêm &c+5 damage"
+      - "  &7Hạ mục tiêu trong 5s: &a-50% cooldown"
+      - ""
+      - "&6Cooldown: &f12s"
+      - "&5Hợp cho: &dAssassin / PvP áp sát"
+
+    stats:
+      damage: 7.0
+      attack-speed: 1.6
+
+    # Vanilla enchantments (key = minecraft enchantment name)
+    enchantments:
+      sharpness: 6
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: bleed
+        chance: 30.0
+        damage-per-tick: 1.5
+        duration: 4
+
+    active-skill:
+      id: dash_strike
+      cooldown: 12
+      dash-distance: 5.0
+      empowered-damage: 5.0
+
+  # ==========================================================
+  # Guardian's Aegis — Shield weapon
+  # Block 3 lần → buff Regeneration + Speed 5s
+  # ==========================================================
+  guardian_aegis:
+    display-name: "&b🛡 &9Guardian's Aegis &b🛡"
+    material: SHIELD
+    weapon-type: SHIELD
+    custom-model-data: 0
+    nexo-id: "soul_skull_shield"
+    unbreakable: true
+    lore:
+      - "&7Chiếc khiên cổ đại của người bảo hộ"
+      - ""
+      - "&e❖ Passive: &fShield Fortitude"
+      - "  &7Mỗi lần block thành công: +1 stack"
+      - "  &7Đủ 3 stack: buff bản thân"
+      - "  &a♥ Regeneration I &7+ &b⚡ Speed I &7trong 5s"
+      - ""
+      - "&5Hợp cho: &dTank / PvP phòng thủ"
+
+    # ShieldListener reads these values at runtime
+    stats:
+      max-stacks: 3.0
+      buff-duration: 5.0
+      regen-level: 1.0
+      speed-level: 1.0
+
+    enchantments:
+      unbreaking: 3
+      mending: 1
+
+  # ==========================================================
+  # Cursed Rod — Fishing rod weapon
+  # Quăng trúng player → 50% lấy totem trên tay
+  # ==========================================================
+  cursed_rod:
+    display-name: "&5🎣 &dCursed Rod &5🎣"
+    material: FISHING_ROD
+    weapon-type: ROD
+    custom-model-data: 0
+    nexo-id: "soul_skull_fishingrod"
+    unbreakable: true
+    lore:
+      - "&7Cần câu bị nguyền rủa bởi bóng tối"
+      - ""
+      - "&d❖ Effect: &fTotem Snatcher"
+      - "  &7Quăng câu trúng người chơi"
+      - "  &750% cơ hội lấy &6Totem of Undying"
+      - "  &7khỏi tay (trái hoặc phải) của họ"
+      - ""
+      - "&5Hợp cho: &dPvP áp lực / Ganker"
+
+    stats:
+      totem-steal-chance: 50.0
+      cooldown: 15.0
+
+    enchantments:
+      unbreaking: 4
+      lure: 3
+      mending: 1
+  # ==========================================================
+  # Void Spear — Spear weapon
+  # Normal hit: phát sáng địch
+  # Active: lao tới, đòn tiếp theo +70% base damage
+  # ==========================================================
+  void_spear:
+    display-name: "&8⚡ &7Void Spear &8⚡"
+    material: IRON_SWORD
+    weapon-type: SPEAR
+    custom-model-data: 0
+    nexo-id: "soul_skull_spear"
+    unbreakable: true
+    lore:
+      - "&7Ngọn thương hút vào khoảng không tối tăm"
+      - ""
+      - "&c❖ Passive: &fGlowing Mark &7(30%)"
+      - "  &7Có 30% làm địch &ephát sáng &74s"
+      - "  &7và gây thêm &c+10% damage"
+      - ""
+      - "&b❖ Active: &fWind Rush &7[Right-Click]"
+      - "  &fSpeed III &7+ &aJump II &7trong 5s"
+      - "  &7Đánh địch đang &e✦Glowing &7→ &c+50% damage"
+      - "  &7Đánh địch KHÔNG phát sáng &7→ &e+20% damage"
+      - ""
+      - "&6Cooldown: &f8s"
+      - "&5Hợp cho: &dHybrid / Burst DPS"
+
+    stats:
+      damage: 8.0
+      attack-speed: 1.4
+      glow-damage-multiplier: 1.5
+      normal-damage-multiplier: 1.2
+
+    enchantments:
+      sharpness: 5
+      unbreaking: 3
+      mending: 1  
+    passive-skills:
+      - id: glow
+        chance: 30.0
+        duration: 4
+        passive-damage-bonus-pct: 0.10
+
+    active-skill:
+      id: speed_buff
+      cooldown: 8
+      speed-level: 3
+      jump-level: 2
+      duration: 5
+      damage-multiplier: 1.0
+
+
+  # ==========================================================
+  # Thunder Mace
+  # Passive: 10% lightning strike (x1.5 rain bonus)
+  # Active: launch 15 blocks, land hit → 5-block AoE Darkness + combo
+  # ==========================================================
+  thunder_mace:
+    display-name: "&6⚡ &eThunder Mace &6⚡"
+    material: MACE
+    weapon-type: MACE
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Cây búa được đúc từ sét sấm thiên đình"
+      - ""
+      - "&c❖ Passive: &fLightning Strike &7(10%)"
+      - "  &7Có 10% triệu hồi &6sét đánh &7vào địch"
+      - "  &7☔ Khi trời mưa: &c+50% &7damage"
+      - ""
+      - "&b❖ Active: &fThunder Drop &7[Right-Click × 2]"
+      - "  &7①&f Click 1: &7Vòng tròn particles bán kính &e5 block"
+      - "  &7   Địch trong vòng bị &ctrói chân &7(Slowness X)"
+      - "  &7②&f Click 2: &7Phóng lên &f20 block"
+      - "  &7   Rơi xuống đánh trúng → &8Darkness 5s"
+      - ""
+      - "&6Cooldown: &f25s"
+      - "&5Hợp cho: &dAoE / Crowd Control"
+
+    stats:
+      damage: 10.0
+      launch-height: 15.0
+      aoe-radius: 5.0
+      combo-damage: 6.0
+      combo-hits: 4.0
+
+    enchantments:
+      sharpness: 5
+      breach: 3
+      unbreaking: 3
+      mending: 1
+    passive-skills:
+      - id: lightning_strike
+        chance: 10.0
+        base-damage: 8.0
+        rain-multiplier: 1.5
+
+    active-skill:
+      id: thunder_drop
+      cooldown: 25
+      launch-height: 15.0
+
+  # ==========================================================
+  # Demo Axe — AXE weapon
+  # Passive: 3 hit → time bomb (3s fuse, 12 damage)
+  # Active: 15-block AoE Slowness 10 + explosion + ally +10% dmg
+  # ==========================================================
+  demo_axe:
+    display-name: "&4💣 &cExplosion Mace &4💣"
+    material: MACE
+    weapon-type: MACE
+    custom-model-data: 0
+    nexo-id: "plny_cardael_set_mace"
+    unbreakable: true
+    lore:
+      - "&7Rìu được nhúng trong chất nổ nguy hiểm"
+      - ""
+      - "&c❖ Passive: &fTime Bomb &7(mỗi 3 đòn)"
+      - "  &73 đòn liên tiếp → &6💣 Bom hẹn giờ 3s"
+      - "  &7Phát nổ gây &c12 damage"
+      - ""
+      - "&b❖ Active: &fDemo Blast &7[Right-Click]"
+      - "  &7Bán kính &e15 block&7:"
+      - "  &7  • Địch → &cSlowness X &7(7s)"
+      - "  &7  • Nổ đất đá trực quan"
+      - "  &7  • Đồng đội → &a+10% damage &7(2s)"
+      - ""
+      - "&6Cooldown: &f30s"
+      - "&5Hợp cho: &dControl / Support"
+
+    stats:
+      damage: 8.0
+
+    enchantments:
+      sharpness: 2
+      unbreaking: 3
+      mending: 1
+    passive-skills:
+      - id: time_bomb
+        hits-required: 3
+        bomb-damage: 12.0
+        fuse-seconds: 3
+
+    active-skill:
+      id: demo_blast
+      cooldown: 30
+      radius: 15.0
+      slowness-duration: 140
+      ally-damage-bonus: 0.10
+      ally-buff-duration-ms: 2000

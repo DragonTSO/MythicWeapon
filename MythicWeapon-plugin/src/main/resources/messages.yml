@@ -1,0 +1,74 @@
+# ============================================================
+# MythicWeapon - Messages Configuration
+# ============================================================
+# Tất cả tin nhắn plugin có thể chỉnh sửa tại đây.
+# Hỗ trợ color code: &a, &b, &c, ...
+# Placeholder: {player}, {weapon}, {damage}, {count}, {seconds}
+# ============================================================
+
+prefix: "&6[MythicWeapon] &r"
+
+# === Skill Messages (Action Bar) ===
+skill:
+  bleed-proc: "&c🩸 &eMục tiêu bị chảy máu!"
+  dash-strike-use: "&b⚡ &eLướt Đao! &7Đòn kế tiếp gây thêm &c{damage} &7damage!"
+  dash-strike-expire: "&7Đòn tấn công mạnh đã hết hiệu lực!"
+  empowered-hit: "&c⚔ &eDòn tấn công mạnh! &c+{damage} damage"
+  cooldown-reset: "&a⚡ &eHạ mục tiêu! Cooldown giảm &a50%&e! Còn &f{seconds}s"
+  shield-reflect: "&b🛡 &ePhản chiếu &c{damage} &edamage!"
+  shield-stack: "&e🛡 Block Stack: &f{current}/{max}"
+  shield-buff-active: "&a🛡 &eĐã kích hoạt &aRegeneration &e+ &bSpeed &etrong &f{seconds}s!"
+  shield-bash-ready: "&a🛡 &6SHIELD BASH SẴN SÀNG! &eCú đánh kế tiếp hất văng mạnh!"
+  shield-bash-hit: "&6💥 &eSHIELD BASH! &c+{damage} damage &7+ hất văng!"
+  rod-totem-stolen: "&6🎣 &eTrộm totem của &c{player}&e thành công!"
+  rod-totem-lost: "&c🎣 &e{player} &cđã lấy totem của bạn!"
+  rod-no-totem: "&7🎣 &e{player} &7không có totem!"
+  rod-miss: "&7🎣 &eMiss! Không có hiệu ứng gì xảy ra."
+  speed-buff-active: "&b⚡ &eWind Rush! &bSpeed III &e+ &aJump II &e+ &c+50% DMG &etrong &f{seconds}s!"
+  wind-rush-hit: "&c⚡ &eWind Rush! &c+{bonus}% &edamage!"
+  thunder-launch-use: "&6⚡ &eTHUNDER LAUNCH! &7Đánh để bắn kẻ địch lên cao!"
+  thunder-phase2: "&6⚡ &eBắn địch lên! &7Đánh tiếp để kích sét!"
+  thunder-launched: "&c⚡ &eBạn bị bắn lên! &cCẩn thận!"
+  thunder-strike: "&6⚡ &6THUNDER STRIKE! &eSét đánh trúng địch + choáng 2s!"
+  thunder-stunned: "&c⚡ &cBạn bị CHOÁNG bởi sét! (2s)"
+  storm-combo: "&6⚡ &eStorm Combo! &c+{damage} damage"
+  thunder-drop-use: "&6⚡ &eTHUNDER DROP! &7Đánh trúng để kích hoạt sét vùng!"
+  thunder-drop-ring: "&6⚡ &eVòng sét! &7Trói &c{count} &7kẻ địch! &fRight-Click lần 2!"
+  thunder-drop-launch: "&6⚡ &6THUNDER DROP! &eĐang rơi xuống!"
+  thunder-drop-hit: "&6⚡ &6THUNDER STRIKE! &eDarkness 5s!"
+  lightning-rain-boost: "&6☔⚡ &eRain Boost! &c+{bonus}% &elightning!"
+  bomb-planted: "&6💣 &eBom đã gắn vào &c{player}&e! Nổ sau 3s!"
+  bomb-attached: "&c💣 &cBOM! Phát nổ sau &f{seconds}s&c!"
+  bomb-countdown: "&c💣 &cNổ sau &f{seconds}s&c!"
+  bomb-explode: "&4💥 &cBOM PHÁT NỔ!"
+  bomb-detonated: "&6💥 &eBom phát nổ trúng &c{player}&e!"
+  demo-blast-use: "&6💥 &eDEMO BLAST! &c{enemies} &7địch bị trói &f| &a{allies} &7đồng đội buff!"
+  demo-ally-buff: "&a⚔ &aĐồng đội buff! &f+10% &adamage trong 2s!"
+
+# === Combat Messages (Action Bar) ===
+combat:
+  empowered-hit: "&c⚔ &eDòn tấn công mạnh! &c+{damage} damage"
+  cooldown-remaining: "&c⏳ &eCooldown: còn &f{seconds}s"
+
+# === Death Messages ===
+death:
+  weapon-lost: "&c☠ &eBạn đã mất &f{count} &eMythicWeapon khi chết!"
+
+# === Command Messages ===
+command:
+  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId>"
+  player-not-found: "&cKhông tìm thấy người chơi: &f{player}"
+  weapon-not-found: "&cKhông tìm thấy vũ khí: &f{weapon}"
+  weapon-not-found-hint: "&7Dùng &f/mythicweapon list &7để xem danh sách."
+  give-success: "&aĐã trao {weapon} &acho &f{player}"
+  list-header: "&6=== MythicWeapon Danh Sách ==="
+  list-entry: "&e- &f{weapon} &7({type})"
+  list-total: "&7Tổng: &f{count} vũ khí"
+  help-header: "&6=== MythicWeapon Help ==="
+  help-give: "&e/mythicweapon give <player> <weaponId> &7- Trao vũ khí"
+  help-list: "&e/mythicweapon list &7- Xem danh sách vũ khí"
+  help-reload: "&e/mythicweapon reload &7- Tải lại config"
+  reload-success: "&aPlugin reloaded in &f{time}ms"
+  update-success: "&a✔ Đã cập nhật &f{count} &aitem cho toàn bộ player online!"
+  help-update: "&e/mw update &7— Cập nhật item MythicWeapon cho toàn server"
+  no-permission: "&cBạn không có quyền sử dụng lệnh này!"

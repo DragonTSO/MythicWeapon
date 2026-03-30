@@ -14,6 +14,7 @@
 - [Cấu hình](#-cấu-hình)
 - [Hệ thống Auto-Update](#-hệ-thống-auto-update)
 - [Kiến trúc](#-kiến-trúc)
+- [Tích hợp CrazyCrates](#-tích-hợp-crazycrates)
 
 ---
 
@@ -23,7 +24,7 @@
 |---------|-----------|
 | Java | 21+ |
 | Minecraft Server | 1.21.x (Paper / Folia / Canvas) |
-| Soft Dependency | [Nexo](https://github.com/Nexo) *(tuỳ chọn — custom texture)* |
+| Soft Dependency | [Nexo](https://github.com/Nexomc) *(tuỳ chọn — custom texture)* |
 
 ---
 
@@ -49,15 +50,14 @@
 ### 🛡 Guardian's Aegis *(SHIELD)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Phản Chiếu** | Block đòn đánh → **phản chiếu 30% damage** lên kẻ tấn công |
-| **Active — Khiên Thần** | Stack block liên tiếp. Đạt max → kích hoạt **Regeneration + Speed** trong 5s |
+| **Passive — Shield Fortitude** | Block thành công → +1 stack. Đạt 3 stack → kích hoạt **Regeneration I + Speed I** trong 5s |
 
 ---
 
 ### 🎣 Cursed Rod *(ROD)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Đánh Cắp Totem** | Câu trúng Player → **đánh cắp Totem** của họ, hồi máu cho người dùng |
+| **Passive — Totem Snatcher** | Câu trúng Player → **50% lấy Totem of Undying** của họ, hồi máu cho người dùng |
 | **Active** | Khi đang cooldown → **chặn không cho quăng cần** |
 
 ---
@@ -65,49 +65,48 @@
 ### 🔱 Void Spear *(SPEAR)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Phát Sáng** | Mỗi đòn có tỉ lệ làm địch **phát sáng (Glowing)** + `+10% damage` |
-| **Active — Tốc Chiến** | Nhận **Speed III + Jump II** trong 5s. Đánh trúng địch phát sáng: `+50% damage`. Địch thường: `+20% damage` |
+| **Passive — Glowing Mark** | 30% cơ hội làm địch **phát sáng (Glowing)** 4s + `+10% damage` |
+| **Active — Wind Rush** | Nhận **Speed III + Jump II** trong 5s. Đánh trúng địch phát sáng: `+50% damage`. Địch thường: `+20% damage` |
 
 ---
 
 ### ⚡ Thunder Mace *(MACE)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Sét Đánh** | 10% mỗi đòn → **sét đánh địch**. Trời mưa: `+50% damage` |
-| **Active — Phase 1** | Click 1: tạo **vòng tròn particles** bán kính 5 block, địch bị **trói chân (Slowness X, 5s)** |
-| **Active — Phase 2** | Click 2: **phóng lên 20 block**. Khi rơi đánh trúng → địch bị **Darkness 5s** |
+| **Passive — Lightning Strike** | 10% mỗi đòn → **sét đánh địch**. Trời mưa: `+50% damage` |
+| **Active — Thunder Drop (2 Phase)** | Click 1: tạo **vòng tròn particles** bán kính 5 block, địch bị **trói chân (Slowness X, 5s)**. Click 2: **phóng lên 20 block**. Khi rơi đánh trúng → địch bị **Darkness 5s** |
 
 ---
 
-### 💣 Explosion Mace *(AXE)*
+### 💣 Explosion Mace *(MACE)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Bom Hẹn Giờ** | Mỗi **3 đòn liên tiếp** vào cùng mục tiêu → gắn 💣 bom hẹn giờ 3s, phát nổ gây `12 damage` |
-| **Active — AoE Blast** | Bán kính **15 block**: địch bị **Slowness X (7s)** + vụ nổ trực quan (không phá block). Đồng đội gần nhận **+10% damage trong 2s** |
+| **Passive — Time Bomb** | Mỗi **3 đòn liên tiếp** vào cùng mục tiêu → gắn 💣 bom hẹn giờ 3s, phát nổ gây `12 damage` |
+| **Active — Demo Blast** | Bán kính **15 block**: địch bị **Slowness X (7s)** + vụ nổ trực quan (không phá block). Đồng đội gần nhận **+10% damage trong 2s** |
 
 ---
 
 ### 🩸 Huyết Kiếm *(SWORD)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Hút Máu** | Mỗi đòn đánh hồi lại **0.5 tim**. Nếu máu dưới 30% → tăng nhẹ damage |
-| **Active — Hiến Tế** | Hiến tế **10% máu hiện tại** để tăng mạnh sát thương trong 10s. Đánh càng đau, hút máu càng nhiều |
+| **Passive — Hút Máu** | Mỗi đòn đánh hồi lại **0.5 tim**. Nếu máu dưới 30% → `+15% damage` |
+| **Active — Hiến Tế** | Hiến tế **10% máu hiện tại** để tăng `+50% damage` trong 10s. Đánh trúng hút 25% damage thành HP |
 
 ---
 
 ### 🔥 Rìu Hỏa Ngục *(AXE)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Thiêu Xương** | Đòn đánh **đốt cháy** mục tiêu. Càng thấp máu, càng cháy đau |
-| **Active — Cuồng Hỏa (10s)** | Đánh vào mục tiêu đang cháy → **tăng tốc chạy + damage**, stack tối đa 3 lần |
+| **Passive — Thiêu Xương** | Đòn đánh **đốt cháy** mục tiêu (2-4 damage/s tùy HP). Càng thấp máu, càng cháy đau |
+| **Active — Cuồng Hỏa (10s)** | Đánh vào mục tiêu đang cháy → **+1 stack** (mỗi stack: +Speed + 10% DMG). Tối đa 3 stack (+30% DMG + Speed III) |
 
 ---
 
 ### 🌊 Đinh Ba Bão Tố *(TRIDENT)*
 | Loại | Mô tả |
 |------|--------|
-| **Passive — Bão Tố** | Khi ở dưới nước/trời mưa: **+30% damage + Speed II**. 30% tỉ lệ **triệu hồi sét** (+6 damage) + Glowing |
-| **Active — Hoán Đổi** | Ném trident trúng mục tiêu → **đổi vị trí** player ↔ target. Tạo **vụ nổ** tại vị trí cũ + **3 tia sét** liên tiếp đánh vào mục tiêu |
+| **Passive — Phẫn Nộ Biển Cả** | Khi ở dưới nước/trời mưa: **+30% damage + Speed II**. 30% tỉ lệ **triệu hồi sét** (+6 damage) + Glowing |
+| **Active — Hoán Đổi Bão Tố** | Kích hoạt → ném trident trúng mục tiêu → **đổi vị trí** player ↔ target. Tạo **vụ nổ** tại vị trí cũ + **3 tia sét** liên tiếp đánh vào mục tiêu |
 
 ---
 
@@ -235,27 +234,52 @@ Khi cập nhật `weapons.yml` (thay đổi lore, stats, enchant...), item cũ t
 
 ```
 MythicWeapon/
-├── MythicWeapon-api/          # API, interfaces, data models
+├── MythicWeapon-api/              # API, interfaces, data models
 │   └── src/main/java/
-│       ├── api/skill/         # PassiveSkill, ActiveSkill interfaces
-│       ├── api/weapon/        # MythicWeapon, WeaponType
-│       └── data/              # PlayerCombatData
-├── MythicWeapon-implement/    # Core logic
+│       ├── api/skill/             # PassiveSkill, ActiveSkill interfaces
+│       ├── api/weapon/            # MythicWeapon, WeaponType
+│       └── data/                  # PlayerCombatData
+│
+├── MythicWeapon-implement/        # Core logic
 │   └── src/main/java/
-│       ├── core/              # MythicWeaponCore (bootstrap)
-│       ├── listener/          # Event listeners (Combat, Shield, Trident, ...)
-│       ├── manager/           # CooldownManager, ItemManager, CombatDataManager
-│       ├── service/           # WeaponUpdater, ExpiryTask
+│       ├── command/               # MythicWeaponCommand
+│       ├── config/                # WeaponConfigLoader, MessageConfig
+│       ├── core/                  # MythicWeaponCore (bootstrap)
+│       ├── hook/                  # NexoHook (Nexo integration)
+│       ├── listener/
+│       │   ├── CombatListener     # Melee combat events
+│       │   ├── DeathListener      # Death drop handling
+│       │   ├── FishingRodListener # Cursed Rod mechanics
+│       │   ├── InteractListener   # Right-click active skills
+│       │   ├── PlayerJoinListener # Auto-update on join
+│       │   ├── ShieldListener     # Guardian's Aegis block
+│       │   └── TridentHitListener # Storm Trident hit
+│       ├── manager/
+│       │   ├── CombatDataManager  # Per-player combat state
+│       │   ├── CooldownManager    # Skill cooldowns
+│       │   ├── EffectManager      # Visual/sound effects
+│       │   ├── ItemManager        # Item creation & NBT
+│       │   ├── SkillRegistry      # Skill factory registration
+│       │   └── WeaponRegistry     # Weapon definition storage
+│       ├── service/
+│       │   ├── ExpiryTask         # Periodic weapon expiry check
+│       │   └── WeaponUpdater      # Auto-update service
 │       ├── skill/
-│       │   ├── passive/       # BleedSkill, BurnSkill, TridentStormPassive, ...
-│       │   └── active/        # DashStrikeSkill, TridentSwapSkill, ...
-│       ├── util/              # SchedulerUtil, ItemUtil, MessageUtil
-│       └── config/            # WeaponConfigLoader, MessageConfig
-└── MythicWeapon-plugin/       # Plugin bootstrap + resources
+│       │   ├── passive/           # BleedSkill, BurnSkill, GlowSkill, ...
+│       │   └── active/            # DashStrikeSkill, TridentSwapSkill, ...
+│       ├── util/
+│       │   ├── ChanceUtil         # Random chance calculations
+│       │   ├── ItemUtil           # Item helper methods
+│       │   ├── MessageUtil        # Message formatting
+│       │   └── SchedulerUtil      # Folia-safe scheduler
+│       └── weapon/
+│           └── WeaponLoader       # YAML → Weapon object mapping
+│
+└── MythicWeapon-plugin/           # Plugin bootstrap + resources
     └── src/main/resources/
-        ├── weapons.yml
-        ├── messages.yml
-        └── plugin.yml
+        ├── weapons.yml            # Weapon definitions
+        ├── messages.yml           # Configurable messages
+        └── plugin.yml             # Plugin metadata
 ```
 
 ### Thêm vũ khí mới
@@ -271,6 +295,20 @@ Plugin hoàn toàn tương thích với **Folia** và **Canvas** (các fork đa 
 - Sử dụng `SchedulerUtil` để tự động chọn đúng scheduler (Entity/Global/Region)
 - Teleport qua `teleportAsync` trên Folia (qua reflection)
 - Không dùng `BukkitRunnable` trực tiếp — luôn qua `SchedulerUtil`
+
+---
+
+## 🎰 Tích hợp CrazyCrates
+
+MythicWeapon tích hợp hoàn hảo với **CrazyCrates** — hỗ trợ trao vũ khí qua rương gacha:
+
+```yaml
+# Ví dụ prize trong CrazyCrates config
+Commands:
+  - "mythicweapon give %player% scythe_blood"
+```
+
+Xem file cấu hình mẫu `Demonic.yml` trong thư mục crates để có đầy đủ 9 vũ khí MythicWeapon.
 
 ---
 

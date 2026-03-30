@@ -45,6 +45,7 @@ weapons:
       sharpness: 6
       unbreaking: 3
       mending: 1
+      smite: 3
 
     passive-skills:
       - id: bleed
@@ -256,6 +257,7 @@ weapons:
     enchantments:
       sharpness: 2
       unbreaking: 3
+      density: 3
       mending: 1
     passive-skills:
       - id: time_bomb
@@ -281,7 +283,7 @@ weapons:
     material: NETHERITE_SWORD
     weapon-type: SWORD
     custom-model-data: 0
-    nexo-id: ""
+    nexo-id: "crimson_emperor_animated_greatsword"
     unbreakable: true
     lore:
       - "&7Thanh kiếm nguyền rủa, tẩm máu cổ xưa"
@@ -333,7 +335,7 @@ weapons:
     material: NETHERITE_AXE
     weapon-type: AXE
     custom-model-data: 0
-    nexo-id: ""
+    nexo-id: "crimson_emperor_animated_axe"
     unbreakable: true
     lore:
       - "&7Cây rìu rèn từ ngọn lửa địa ngục"
@@ -387,7 +389,7 @@ weapons:
     material: TRIDENT
     weapon-type: TRIDENT
     custom-model-data: 0
-    nexo-id: ""
+    nexo-id: "plny_cardael_set_trident"
     unbreakable: true
     lore:
       - "&7Cây đinh ba được rèn từ tâm bão"

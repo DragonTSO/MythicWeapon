@@ -67,6 +67,23 @@ public class PlayerCombatData {
     /** Ally buff expiry: System.currentTimeMillis() based */
     private long allyBuffExpiry = 0L;
 
+    /** Whether Blood Sacrifice buff is active (Huyết Kiếm) */
+    private boolean bloodSacrificeActive;
+    /** Damage multiplier during Blood Sacrifice (e.g. 1.5 = +50%) */
+    private double bloodSacrificeDamageMultiplier = 1.0;
+
+    /** Whether Inferno Rage is active (Rìu Hỏa Ngục) */
+    private boolean infernoRageActive;
+    /** Current inferno rage stacks */
+    private int infernoRageStacks;
+    /** Max inferno rage stacks */
+    private int infernoRageMaxStacks;
+    /** Damage bonus per inferno rage stack (e.g. 0.10 = +10%) */
+    private double infernoRageDamagePerStack;
+
+    /** Whether Trident Swap is armed (next trident hit triggers swap) */
+    private boolean tridentSwapActive;
+
     /**
      * Consume the empowered strike state.
      *
@@ -159,5 +176,12 @@ public class PlayerCombatData {
         thunderStrikeReady = false;
         thunderDropActive = false;
         thunderDropPhase = 0;
+        bloodSacrificeActive = false;
+        bloodSacrificeDamageMultiplier = 1.0;
+        infernoRageActive = false;
+        infernoRageStacks = 0;
+        infernoRageMaxStacks = 0;
+        infernoRageDamagePerStack = 0;
+        tridentSwapActive = false;
     }
 }

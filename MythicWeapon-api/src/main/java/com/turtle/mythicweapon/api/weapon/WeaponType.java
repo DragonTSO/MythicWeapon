@@ -9,5 +9,6 @@ public enum WeaponType {
     SPEAR,
     BOW,
     STAFF,
-    ROD
+    ROD,
+    TRIDENT
 }

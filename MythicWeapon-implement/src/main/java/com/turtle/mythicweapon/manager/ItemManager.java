@@ -95,6 +95,36 @@ public class ItemManager {
     }
 
     /**
+     * Create an ItemStack from a MythicWeapon definition with an expiry timestamp.
+     * If expiryMillis <= 0, behaves like the normal createItem (permanent weapon).
+     *
+     * @param weapon      the weapon definition
+     * @param expiryMillis epoch milliseconds when this weapon expires, or <= 0 for permanent
+     * @return a fully configured ItemStack with optional expiry data
+     */
+    public ItemStack createItem(MythicWeapon weapon, long expiryMillis) {
+        ItemStack item = createItem(weapon);
+
+        if (expiryMillis > 0) {
+            ItemMeta meta = item.getItemMeta();
+
+            // Store expiry in PDC
+            ItemUtil.setExpiry(meta, expiryMillis);
+
+            // Add expiry lore line
+            List<String> lore = meta.getLore();
+            if (lore == null) lore = new ArrayList<>();
+            lore.add(MessageUtil.colorize(""));
+            lore.add(MessageUtil.colorize("&c⏳ Hết hạn: &f" + ItemUtil.formatTimeRemaining(expiryMillis)));
+
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
+
+        return item;
+    }
+
+    /**
      * Create a vanilla ItemStack from material name.
      */
     private ItemStack createVanillaItem(MythicWeapon weapon) {

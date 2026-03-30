@@ -5,6 +5,7 @@ import com.turtle.mythicweapon.config.MessageConfig;
 import com.turtle.mythicweapon.core.MythicWeaponCore;
 import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
+import com.turtle.mythicweapon.util.ItemUtil;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -21,6 +22,10 @@ import java.util.stream.Collectors;
 /**
  * Command handler for /mythicweapon (/mw).
  * Subcommands: give, list, reload, help
+ *
+ * Usage: /mythicweapon give <player> <weapon_id> [duration]
+ * Duration format: 2d (days), 12h (hours), 30m (minutes), or combined: 1d12h30m
+ * If no duration is specified, the weapon is permanent.
  */
 public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
@@ -83,12 +88,33 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ItemStack item = itemManager.createItem(weapon);
+        // Parse optional duration (args[3])
+        long expiryMillis = -1;
+        String durationStr = null;
+        if (args.length >= 4) {
+            durationStr = args[3];
+            long durationMs = ItemUtil.parseDuration(durationStr);
+            if (durationMs <= 0) {
+                sender.sendMessage(MessageConfig.get("command.invalid-duration",
+                        "input", durationStr));
+                return;
+            }
+            expiryMillis = System.currentTimeMillis() + durationMs;
+        }
+
+        ItemStack item = itemManager.createItem(weapon, expiryMillis);
         target.getInventory().addItem(item);
 
-        sender.sendMessage(MessageConfig.get("command.give-success",
-                "weapon", weapon.getDisplayName(),
-                "player", target.getName()));
+        if (expiryMillis > 0) {
+            sender.sendMessage(MessageConfig.get("command.give-success-expiry",
+                    "weapon", weapon.getDisplayName(),
+                    "player", target.getName(),
+                    "duration", ItemUtil.formatDuration(ItemUtil.parseDuration(durationStr))));
+        } else {
+            sender.sendMessage(MessageConfig.get("command.give-success",
+                    "weapon", weapon.getDisplayName(),
+                    "player", target.getName()));
+        }
     }
 
     private void handleList(CommandSender sender) {
@@ -137,6 +163,15 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             Bukkit.getOnlinePlayers().forEach(p -> completions.add(p.getName()));
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
             completions.addAll(weaponRegistry.getWeapons().keySet());
+        } else if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
+            // Duration suggestions
+            completions.add("1d");
+            completions.add("2d");
+            completions.add("3d");
+            completions.add("7d");
+            completions.add("30d");
+            completions.add("12h");
+            completions.add("1d12h");
         }
 
         String lastArg = args[args.length - 1].toLowerCase();
@@ -145,3 +180,4 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
                 .collect(Collectors.toList());
     }
 }
+

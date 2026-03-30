@@ -63,14 +63,17 @@ public class DemoBlastSkill implements ActiveSkill {
             if (e == player) continue;
             if (center.distanceSquared(e.getLocation()) > radius * radius) continue;
 
+            // ALL LivingEntities (including Players) are enemies → get Slowness
+            if (e instanceof LivingEntity le) {
+                enemies.add(le);
+            }
+            // Players are ALSO allies → get damage buff
             if (e instanceof Player ally) {
                 allies.add(ally);
-            } else if (e instanceof LivingEntity le) {
-                enemies.add(le);
             }
         }
 
-        // Apply Slowness 10 (9 = level 10) to all enemies for slownessDuration ticks
+        // Apply Slowness 10 (9 = level 10) to ALL enemies (including players) for slownessDuration ticks
         for (LivingEntity enemy : enemies) {
             enemy.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS,
                     slownessDuration, 9, true, true));
@@ -84,6 +87,7 @@ public class DemoBlastSkill implements ActiveSkill {
         }
 
         // Visual explosion at center (no fire, no block damage)
+        // Creeper-style explosion: break blocks, no fire
         center.getWorld().createExplosion(center, 3.0f, false, false);
         center.getWorld().spawnParticle(Particle.CLOUD, center, 30, 1.0, 1.0, 1.0, 0.1);
         center.getWorld().spawnParticle(Particle.EXPLOSION, center, 10, 1.5, 0.5, 1.5, 0);

@@ -9,6 +9,8 @@ import com.turtle.mythicweapon.listener.FishingRodListener;
 import com.turtle.mythicweapon.listener.InteractListener;
 import com.turtle.mythicweapon.listener.PlayerJoinListener;
 import com.turtle.mythicweapon.listener.ShieldListener;
+import com.turtle.mythicweapon.listener.TridentHitListener;
+import com.turtle.mythicweapon.service.ExpiryTask;
 import com.turtle.mythicweapon.service.WeaponUpdater;
 import com.turtle.mythicweapon.manager.CombatDataManager;
 import com.turtle.mythicweapon.manager.CooldownManager;
@@ -16,16 +18,22 @@ import com.turtle.mythicweapon.manager.EffectManager;
 import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.manager.SkillRegistry;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
+import com.turtle.mythicweapon.skill.active.BloodSacrificeSkill;
 import com.turtle.mythicweapon.skill.active.DashStrikeSkill;
 import com.turtle.mythicweapon.skill.active.DemoBlastSkill;
+import com.turtle.mythicweapon.skill.active.InfernoRageSkill;
 import com.turtle.mythicweapon.skill.active.SpeedBuffSkill;
 import com.turtle.mythicweapon.skill.active.ThunderDropSkill;
 import com.turtle.mythicweapon.skill.active.ThunderLaunchSkill;
+import com.turtle.mythicweapon.skill.active.TridentSwapSkill;
 import com.turtle.mythicweapon.skill.passive.BleedSkill;
+import com.turtle.mythicweapon.skill.passive.BloodLifestealSkill;
+import com.turtle.mythicweapon.skill.passive.BurnSkill;
 import com.turtle.mythicweapon.skill.passive.GlowSkill;
 import com.turtle.mythicweapon.skill.passive.LightningStrikeSkill;
 import com.turtle.mythicweapon.skill.passive.StormComboSkill;
 import com.turtle.mythicweapon.skill.passive.TimeBombSkill;
+import com.turtle.mythicweapon.skill.passive.TridentStormPassive;
 import com.turtle.mythicweapon.util.ItemUtil;
 import com.turtle.mythicweapon.hook.NexoHook;
 
@@ -91,6 +99,8 @@ public class MythicWeaponCore {
                 new FishingRodListener(itemManager, cooldownManager), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new PlayerJoinListener(weaponUpdater, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
 
         // Register commands
         MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager);
@@ -99,6 +109,9 @@ public class MythicWeaponCore {
             cmd.setExecutor(commandHandler);
             cmd.setTabCompleter(commandHandler);
         }
+
+        // Start expiry checker task
+        new ExpiryTask(plugin).start();
 
         plugin.getLogger().info("MythicWeapon enabled successfully!");
     }
@@ -143,6 +156,8 @@ public class MythicWeaponCore {
                 new FishingRodListener(itemManager, cooldownManager), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new PlayerJoinListener(weaponUpdater, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
 
         // Auto-update all online players after reload
         int updated = weaponUpdater.updateAllOnlinePlayers();
@@ -244,6 +259,60 @@ public class MythicWeaponCore {
                 config.getDouble("ally-damage-bonus", 0.10),
                 config.getInt("ally-buff-duration-ms", 2000),
                 config.getInt("cooldown", 30)
+        ));
+
+        // === HUYẾT KIẾM SKILLS ===
+
+        skillRegistry.registerPassive("blood_lifesteal", config -> new BloodLifestealSkill(
+                combatDataManager,
+                config.getDouble("heal-per-hit", 1.0),
+                config.getDouble("low-hp-threshold", 0.30),
+                config.getDouble("low-hp-damage-bonus", 0.15),
+                config.getDouble("sacrifice-lifesteal-pct", 0.25)
+        ));
+
+        skillRegistry.registerActive("blood_sacrifice", config -> new BloodSacrificeSkill(
+                plugin,
+                combatDataManager,
+                config.getDouble("sacrifice-pct", 0.10),
+                config.getDouble("damage-multiplier", 1.5),
+                config.getInt("duration", 10),
+                config.getInt("cooldown", 20)
+        ));
+
+        // === RÌU HỎA NGỤC SKILLS ===
+
+        skillRegistry.registerPassive("burn", config -> new BurnSkill(
+                plugin,
+                config.getDouble("base-burn-damage", 2.0),
+                config.getInt("burn-duration", 4),
+                config.getInt("fire-ticks", 80),
+                config.getDouble("low-hp-scale", 1.0)
+        ));
+
+        skillRegistry.registerActive("inferno_rage", config -> new InfernoRageSkill(
+                plugin,
+                combatDataManager,
+                config.getInt("duration", 10),
+                config.getInt("max-stacks", 3),
+                config.getDouble("damage-per-stack", 0.10),
+                config.getInt("cooldown", 25)
+        ));
+
+        // === TRIDENT SKILLS ===
+
+        skillRegistry.registerPassive("trident_storm", config -> new TridentStormPassive(
+                config.getDouble("water-damage-multiplier", 1.3),
+                config.getInt("water-speed-level", 2),
+                config.getInt("water-speed-duration", 5),
+                config.getDouble("lightning-chance", 30.0),
+                config.getDouble("lightning-damage", 6.0)
+        ));
+
+        skillRegistry.registerActive("trident_swap", config -> new TridentSwapSkill(
+                plugin,
+                combatDataManager,
+                config.getInt("cooldown", 25)
         ));
     }
 

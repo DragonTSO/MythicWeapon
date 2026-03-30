@@ -123,6 +123,16 @@ public class CombatListener implements Listener {
             }
         }
 
+        // === Inferno Rage: hitting a burning target → add stack ===
+        if (data.isInfernoRageActive() && target.getFireTicks() > 0) {
+            com.turtle.mythicweapon.skill.active.InfernoRageSkill.addStack(player, combatDataManager);
+            // Apply damage multiplier from stacks
+            double infernoMultiplier = com.turtle.mythicweapon.skill.active.InfernoRageSkill.getDamageMultiplier(data);
+            if (infernoMultiplier > 1.0) {
+                event.setDamage(event.getDamage() * infernoMultiplier);
+            }
+        }
+
         // Dispatch passive skills
         for (PassiveSkill skill : weapon.getPassiveSkills()) {
             skill.onHit(player, target, event, weapon);
@@ -140,7 +150,7 @@ public class CombatListener implements Listener {
             center.getWorld().spawnParticle(org.bukkit.Particle.ELECTRIC_SPARK, loc, 2, 0, 0, 0, 0.01);
         }
         // Inner fill lightning particles
-        center.getWorld().spawnParticle(org.bukkit.Particle.FLASH, center.add(0, 0.5, 0), 3, 0, 0, 0, 0);
+        center.getWorld().spawnParticle(org.bukkit.Particle.FLASH, center.add(0, 0.5, 0), 3, 0, 0, 0, 0, org.bukkit.Color.fromRGB(255, 255, 200));
     }
 
 

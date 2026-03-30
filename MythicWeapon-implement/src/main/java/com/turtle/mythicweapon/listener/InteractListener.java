@@ -2,6 +2,7 @@ package com.turtle.mythicweapon.listener;
 
 import com.turtle.mythicweapon.api.skill.ActiveSkill;
 import com.turtle.mythicweapon.api.weapon.MythicWeapon;
+import com.turtle.mythicweapon.api.weapon.WeaponType;
 import com.turtle.mythicweapon.manager.CooldownManager;
 import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.config.MessageConfig;
@@ -9,6 +10,7 @@ import com.turtle.mythicweapon.util.MessageUtil;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +19,10 @@ import lombok.RequiredArgsConstructor;
 
 /**
  * Listens for right-click interactions and dispatches active skills.
+ *
+ * For TRIDENT weapons: the skill is activated on ANY right-click (same action
+ * that throws the trident). The flag is set first, then the trident throw
+ * happens naturally. The TridentHitListener checks the flag on projectile hit.
  */
 @RequiredArgsConstructor
 public class InteractListener implements Listener {
@@ -24,7 +30,7 @@ public class InteractListener implements Listener {
     private final ItemManager itemManager;
     private final CooldownManager cooldownManager;
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = false)
     public void onInteract(PlayerInteractEvent event) {
         if (!event.getAction().name().contains("RIGHT_CLICK")) return;
 
@@ -58,3 +64,4 @@ public class InteractListener implements Listener {
         cooldownManager.setCooldown(player.getUniqueId(), skill.getId(), skill.getCooldownSeconds());
     }
 }
+

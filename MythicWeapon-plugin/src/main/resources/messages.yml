@@ -44,6 +44,25 @@ skill:
   bomb-detonated: "&6💥 &eBom phát nổ trúng &c{player}&e!"
   demo-blast-use: "&6💥 &eDEMO BLAST! &c{enemies} &7địch bị trói &f| &a{allies} &7đồng đội buff!"
   demo-ally-buff: "&a⚔ &aĐồng đội buff! &f+10% &adamage trong 2s!"
+  # === Huyết Kiếm ===
+  blood-low-hp: "&4🗡 &cKhát Máu! &c+{bonus}% &edamage!"
+  blood-sacrifice-use: "&4🗡 &cHIẾN TẾ MÁU! &7Mất &c{hp}♥ &7→ &c+{damage}% damage &7trong &f{seconds}s!"
+  blood-sacrifice-expire: "&7Hiến Tế Máu đã hết hiệu lực!"
+  blood-sacrifice-low: "&c⚠ &eMáu quá thấp để hiến tế!"
+  # === Rìu Hỏa Ngục ===
+  burn-passive: "&6🔥 &eThiêu Xương! &c{damage} &7damage/s trong &f{seconds}s!"
+  burn-low-hp: "&4🔥 &cThiêu Xương Mãnh Liệt! &c{damage} &7damage/s!"
+  inferno-rage-use: "&4🔥 &cCUỒNG HỎA! &7Đánh mục tiêu đang cháy để stack! &f{seconds}s"
+  inferno-rage-stack: "&6🔥 &eCuồng Hỏa Stack: &c{current}/{max} &7→ &a+Speed &c+DMG"
+  inferno-rage-max: "&4🔥 &6CUỒNG HỎA TỐI ĐA! &c+{damage}% DMG &a+Speed III"
+  inferno-rage-expire: "&7Cuồng Hỏa đã hết hiệu lực!"
+  # === Đinh Ba Bão Tố ===
+  trident-water-buff: "&b🔱 &ePhẫn Nộ Biển Cả! &c+{damage}% damage &7+ &aSpeed!"
+  trident-lightning-proc: "&6⚡ &eSét đánh! &c+{damage} &7lightning damage!"
+  trident-swap-armed: "&b🔱 &eHOÁN ĐỔI BÃO TỐ! &7Ném trident để kích hoạt!"
+  trident-swap-hit: "&b🔱 &6HOÁN ĐỔI! &eĐổi vị trí + 3 tia sét!"
+  trident-swap-victim: "&c🔱 &cBạn bị hoán đổi vị trí! &4SÉT ĐANG TỚI!"
+  trident-swap-expire: "&7Hoán Đổi Bão Tố đã hết hiệu lực!"
 
 # === Combat Messages (Action Bar) ===
 combat:
@@ -54,18 +73,25 @@ combat:
 death:
   weapon-lost: "&c☠ &eBạn đã mất &f{count} &eMythicWeapon khi chết!"
 
+# === Weapon Expiry Messages ===
+weapon:
+  expired: "&c⏳ &eVũ khí {weapon} &eđã hết hạn và biến mất!"
+  expired-chat: "&c⏳ &eVũ khí {weapon} &eđã hết hạn sử dụng và đã bị xóa khỏi túi đồ của bạn."
+
 # === Command Messages ===
 command:
-  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId>"
+  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId> [thời_hạn]"
   player-not-found: "&cKhông tìm thấy người chơi: &f{player}"
   weapon-not-found: "&cKhông tìm thấy vũ khí: &f{weapon}"
   weapon-not-found-hint: "&7Dùng &f/mythicweapon list &7để xem danh sách."
-  give-success: "&aĐã trao {weapon} &acho &f{player}"
+  give-success: "&aĐã trao {weapon} &acho &f{player} &7(Vĩnh viễn)"
+  give-success-expiry: "&aĐã trao {weapon} &acho &f{player} &7(Hết hạn sau: &f{duration}&7)"
+  invalid-duration: "&cThời hạn không hợp lệ: &f{input}&c. Ví dụ: 2d, 12h, 30m, 1d12h"
   list-header: "&6=== MythicWeapon Danh Sách ==="
   list-entry: "&e- &f{weapon} &7({type})"
   list-total: "&7Tổng: &f{count} vũ khí"
   help-header: "&6=== MythicWeapon Help ==="
-  help-give: "&e/mythicweapon give <player> <weaponId> &7- Trao vũ khí"
+  help-give: "&e/mythicweapon give <player> <weaponId> [thời_hạn] &7- Trao vũ khí (VD: 2d, 12h)"
   help-list: "&e/mythicweapon list &7- Xem danh sách vũ khí"
   help-reload: "&e/mythicweapon reload &7- Tải lại config"
   reload-success: "&aPlugin reloaded in &f{time}ms"

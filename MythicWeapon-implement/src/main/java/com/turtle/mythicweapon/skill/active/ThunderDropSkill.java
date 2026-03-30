@@ -165,6 +165,6 @@ public class ThunderDropSkill implements ActiveSkill {
             Location loc = new Location(center.getWorld(), x, center.getY() + 0.05, z);
             center.getWorld().spawnParticle(Particle.DUST, loc, 1, 0, 0, 0, 0, yellowDust);
         }
-        center.getWorld().spawnParticle(Particle.FLASH, center.clone().add(0, 0.1, 0), 2, 0, 0, 0, 0);
+        center.getWorld().spawnParticle(Particle.FLASH, center.clone().add(0, 0.1, 0), 2, 0, 0, 0, 0, org.bukkit.Color.fromRGB(255, 255, 200));
     }
 }

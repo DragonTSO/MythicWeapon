@@ -270,3 +270,162 @@ weapons:
       slowness-duration: 140
       ally-damage-bonus: 0.10
       ally-buff-duration-ms: 2000
+
+  # ==========================================================
+  # Huyết Kiếm — Blood Sword
+  # Passive: Hút máu mỗi đòn đánh + tăng damage khi máu thấp
+  # Active: Hiến tế máu để tăng sát thương mạnh + hút máu nhiều hơn
+  # ==========================================================
+  blood_sword:
+    display-name: "&4🗡 &cHuyết Kiếm &4🗡"
+    material: NETHERITE_SWORD
+    weapon-type: SWORD
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Thanh kiếm nguyền rủa, tẩm máu cổ xưa"
+      - "&7Không ai thoát khỏi cơn khát máu của nó"
+      - ""
+      - "&c❖ Passive: &fHút Máu"
+      - "  &7Mỗi đòn đánh hồi &c♥ 0.5 tim"
+      - "  &7Máu dưới &c30%&7: &c+15% damage"
+      - ""
+      - "&4❖ Active: &fHiến Tế Máu &7[Right-Click]"
+      - "  &7Hiến tế &c10% &7máu hiện tại"
+      - "  &7Nhận &c+50% damage &7trong &f10s"
+      - "  &7Đánh càng đau, &chút máu càng nhiều"
+      - "  &7(25% damage thành HP)"
+      - ""
+      - "&6Cooldown: &f20s"
+      - "&5Hợp cho: &dBerserker / Sustain DPS"
+
+    stats:
+      damage: 9.0
+      attack-speed: 1.6
+
+    enchantments:
+      sharpness: 5
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: blood_lifesteal
+        heal-per-hit: 1.0
+        low-hp-threshold: 0.30
+        low-hp-damage-bonus: 0.15
+        sacrifice-lifesteal-pct: 0.25
+
+    active-skill:
+      id: blood_sacrifice
+      cooldown: 20
+      sacrifice-pct: 0.10
+      damage-multiplier: 1.5
+      duration: 10
+
+  # ==========================================================
+  # Rìu Hỏa Ngục — Inferno Axe
+  # Passive: Thiêu Xương - đốt cháy mục tiêu, càng thấp máu càng đau
+  # Active: Cuồng Hỏa - đánh mục tiêu đang cháy stack speed+damage
+  # ==========================================================
+  inferno_axe:
+    display-name: "&4🔥 &6Rìu Hỏa Ngục &4🔥"
+    material: NETHERITE_AXE
+    weapon-type: AXE
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Cây rìu rèn từ ngọn lửa địa ngục"
+      - "&7Thiêu đốt mọi thứ trên đường đi"
+      - ""
+      - "&c❖ Passive: &fThiêu Xương"
+      - "  &7Mỗi đòn đánh &6đốt cháy &7mục tiêu"
+      - "  &7Càng &cthấp máu&7, cháy càng &cđau"
+      - "  &7(2-4 damage/s tùy HP)"
+      - ""
+      - "&4❖ Active: &fCuồng Hỏa &7[Right-Click]"
+      - "  &7Kích hoạt trạng thái Cuồng Hỏa &f10s"
+      - "  &7Đánh mục tiêu &6đang cháy &7→ +1 Stack"
+      - "  &7Mỗi stack: &a+Speed &c+10% DMG"
+      - "  &7Tối đa &c3 stack &7(&c+30% DMG &a+Speed III&7)"
+      - ""
+      - "&6Cooldown: &f25s"
+      - "&5Hợp cho: &dBerserker / Sustained Fighter"
+
+    stats:
+      damage: 10.0
+      attack-speed: 1.0
+
+    enchantments:
+      sharpness: 5
+      fire_aspect: 2
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: burn
+        base-burn-damage: 2.0
+        burn-duration: 4
+        fire-ticks: 80
+        low-hp-scale: 1.0
+
+    active-skill:
+      id: inferno_rage
+      cooldown: 25
+      duration: 10
+      max-stacks: 3
+      damage-per-stack: 0.10
+
+  # ==========================================================
+  # Đinh Ba Bão Tố — Storm Trident
+  # Passive: Nước/mưa → +damage +speed. 30% triệu hồi sét
+  # Active: Ném trident → swap vị trí + nổ + 3 tia sét
+  # ==========================================================
+  storm_trident:
+    display-name: "&b🔱 &3Đinh Ba Bão Tố &b🔱"
+    material: TRIDENT
+    weapon-type: TRIDENT
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Cây đinh ba được rèn từ tâm bão"
+      - "&7Kẻ nào sở hữu sẽ chế ngự sấm sét"
+      - ""
+      - "&c❖ Passive: &fPhẫn Nộ Biển Cả"
+      - "  &7Khi ở &bdưới nước &7hoặc &btrời mưa&7:"
+      - "  &7  • &c+30% damage &7+ &aSpeed II"
+      - "  &730% cơ hội &6triệu hồi sét &7lên mục tiêu"
+      - "  &7  • Gây thêm &c6 &7damage sét"
+      - ""
+      - "&4❖ Active: &fHoán Đổi Bão Tố &7[Right-Click]"
+      - "  &7Kích hoạt → ném trident trúng mục tiêu:"
+      - "  &7  • &bĐổi vị trí &7với mục tiêu"
+      - "  &7  • &cNổ vùng &7tại vị trí cũ mục tiêu"
+      - "  &7  • &63 tia sét &7đánh thẳng vào mục tiêu"
+      - ""
+      - "&6Cooldown: &f25s"
+      - "&5Hợp cho: &dEngager / Burst Assassin"
+
+    stats:
+      damage: 9.0
+
+    enchantments:
+      sharpness: 5
+      loyalty: 3
+      impaling: 3
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: trident_storm
+        water-damage-multiplier: 1.3
+        water-speed-level: 2
+        water-speed-duration: 5
+        lightning-chance: 30.0
+        lightning-damage: 6.0
+
+    active-skill:
+      id: trident_swap
+      cooldown: 25

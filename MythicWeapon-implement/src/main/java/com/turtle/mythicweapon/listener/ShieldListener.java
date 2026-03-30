@@ -2,11 +2,13 @@ package com.turtle.mythicweapon.listener;
 
 import com.turtle.mythicweapon.api.data.PlayerCombatData;
 import com.turtle.mythicweapon.api.weapon.MythicWeapon;
+import com.turtle.mythicweapon.api.weapon.WeaponType;
 import com.turtle.mythicweapon.config.MessageConfig;
 import com.turtle.mythicweapon.manager.CombatDataManager;
 import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.util.MessageUtil;
 
+import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Entity;
@@ -28,7 +30,10 @@ import lombok.RequiredArgsConstructor;
  * - Each successful block (from a player attacker) adds +1 shield stack
  * - At max stacks (default 3): buff player with Regeneration + Speed for 5s
  *
- * Debug mode: set debug: true in config.yml to see console + action bar debug info.
+ * Block detection: uses finalDamage check instead of unreliable isBlocking().
+ * On Paper/Folia, isBlocking() can return false even when the shield blocks.
+ * Instead, we check if the player has a shield equipped AND the final damage
+ * is 0 or significantly less than the original damage (indicating a block).
  */
 @RequiredArgsConstructor
 public class ShieldListener implements Listener {
@@ -48,45 +53,61 @@ public class ShieldListener implements Listener {
 
     private void debug(Player player, String msg) {
         if (!isDebug()) return;
-        // Console log
         plugin.getLogger().info("[ShieldDebug] [" + player.getName() + "] " + msg);
-        // Chat message (not action bar, so it doesn't overwrite gameplay feedback)
         player.sendMessage(org.bukkit.ChatColor.DARK_GRAY + "[DEBUG] " + org.bukkit.ChatColor.YELLOW + msg);
     }
 
-    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onShieldBlock(EntityDamageByEntityEvent event) {
         Entity damagedEntity = event.getEntity();
 
-        // 1. Defender phải là Player
+        // 1. Defender must be a Player
         if (!(damagedEntity instanceof Player defender)) return;
 
-        // Debug: check isBlocking
-        debug(defender, "Hit received | isBlocking=" + defender.isBlocking()
-                + " | damager=" + event.getDamager().getType()
-                + " | dmg=" + String.format("%.2f", event.getDamage()));
+        // 2. Check if player is holding a shield (main or off hand)
+        boolean hasShieldMainHand = isShield(defender.getInventory().getItemInMainHand());
+        boolean hasShieldOffHand = isShield(defender.getInventory().getItemInOffHand());
 
-        // 2. Defender phải đang block
-        if (!defender.isBlocking()) {
-            debug(defender, "Skipped: not blocking");
+        if (!hasShieldMainHand && !hasShieldOffHand) return;
+
+        // 3. Detect block: use isBlocking() OR finalDamage check
+        //    On Paper/Folia, isBlocking() may be false, so also check damage reduction
+        boolean isBlocking = defender.isBlocking();
+        boolean damageBlocked = event.getFinalDamage() <= 0.0
+                || (event.getDamage() > 0 && event.getFinalDamage() < event.getDamage() * 0.5);
+
+        debug(defender, "Hit received | isBlocking=" + isBlocking
+                + " | damageBlocked=" + damageBlocked
+                + " | originalDmg=" + String.format("%.2f", event.getDamage())
+                + " | finalDmg=" + String.format("%.2f", event.getFinalDamage())
+                + " | damager=" + event.getDamager().getType());
+
+        if (!isBlocking && !damageBlocked) {
+            debug(defender, "Skipped: not blocking (both checks failed)");
             return;
         }
 
-        // 3. Nguồn damage phải từ Player
+        // 4. Attacker must be a Player
         if (!(event.getDamager() instanceof Player attacker)) {
             debug(defender, "Skipped: attacker is not a player (" + event.getDamager().getType() + ")");
             return;
         }
 
-        // 4. Off-hand item phải là MythicWeapon shield
-        ItemStack offHandItem = defender.getInventory().getItemInOffHand();
-        MythicWeapon shieldWeapon = itemManager.getWeapon(offHandItem);
+        // 5. Find the MythicWeapon shield (check both hands)
+        MythicWeapon shieldWeapon = null;
+        if (hasShieldOffHand) {
+            shieldWeapon = itemManager.getWeapon(defender.getInventory().getItemInOffHand());
+        }
+        if (shieldWeapon == null && hasShieldMainHand) {
+            shieldWeapon = itemManager.getWeapon(defender.getInventory().getItemInMainHand());
+        }
 
-        debug(defender, "Off-hand: " + offHandItem.getType()
-                + " | MythicWeapon=" + (shieldWeapon != null ? shieldWeapon.getId() : "null"));
+        debug(defender, "ShieldWeapon=" + (shieldWeapon != null ? shieldWeapon.getId() : "null")
+                + " | mainHand=" + defender.getInventory().getItemInMainHand().getType()
+                + " | offHand=" + defender.getInventory().getItemInOffHand().getType());
 
         if (shieldWeapon == null) {
-            debug(defender, "Skipped: off-hand is not a MythicWeapon");
+            debug(defender, "Skipped: no MythicWeapon shield found");
             return;
         }
 
@@ -135,4 +156,17 @@ public class ShieldListener implements Listener {
                     "max", String.valueOf(maxStacks)));
         }
     }
+
+    /**
+     * Check if an item is a shield (vanilla or Nexo-based).
+     */
+    private boolean isShield(ItemStack item) {
+        if (item == null || item.getType() == Material.AIR) return false;
+        // Vanilla shield
+        if (item.getType() == Material.SHIELD) return true;
+        // Nexo-based shield: check if it's a MythicWeapon with SHIELD type
+        MythicWeapon weapon = itemManager.getWeapon(item);
+        return weapon != null && weapon.getWeaponType() == WeaponType.SHIELD;
+    }
 }
+

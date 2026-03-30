@@ -3,6 +3,7 @@ package com.turtle.mythicweapon.util;
 import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -84,6 +85,31 @@ public class SchedulerUtil {
         }
     }
 
+    /**
+     * Run a repeating global task (not entity-bound).
+     * On Folia: uses GlobalRegionScheduler. On Spigot/Paper: uses BukkitRunnable.
+     */
+    public static void runGlobalTimer(JavaPlugin plugin, CancellableTask task,
+                                      long delayTicks, long periodTicks) {
+        if (IS_FOLIA) {
+            runGlobalTimerFolia(plugin, task, Math.max(1, delayTicks), periodTicks);
+        } else {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (task.isCancelled()) {
+                        cancel();
+                        return;
+                    }
+                    task.run();
+                    if (task.isCancelled()) {
+                        cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, delayTicks, periodTicks);
+        }
+    }
+
     // ====== Folia via reflection ======
 
 
@@ -145,6 +171,38 @@ public class SchedulerUtil {
         }
     }
 
+    private static void runGlobalTimerFolia(JavaPlugin plugin, CancellableTask task,
+                                            long delayTicks, long periodTicks) {
+        try {
+            Object globalScheduler = Bukkit.getServer().getClass()
+                    .getMethod("getGlobalRegionScheduler").invoke(Bukkit.getServer());
+            Method runAtFixedRate = findMethod(globalScheduler.getClass(), "runAtFixedRate");
+
+            java.util.function.Consumer<Object> consumer = scheduledTask -> {
+                if (task.isCancelled()) {
+                    cancelScheduledTask(scheduledTask);
+                    return;
+                }
+                task.run();
+                if (task.isCancelled()) {
+                    cancelScheduledTask(scheduledTask);
+                }
+            };
+
+            runAtFixedRate.invoke(globalScheduler, plugin, consumer, delayTicks, periodTicks);
+        } catch (Exception e) {
+            plugin.getLogger().warning("Folia global timer fallback: " + e.getMessage());
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (task.isCancelled()) { cancel(); return; }
+                    task.run();
+                    if (task.isCancelled()) cancel();
+                }
+            }.runTaskTimer(plugin, delayTicks, periodTicks);
+        }
+    }
+
     private static Method findMethod(Class<?> clazz, String name) {
         for (Method m : clazz.getMethods()) {
             if (m.getName().equals(name)) return m;
@@ -156,6 +214,25 @@ public class SchedulerUtil {
         try {
             scheduledTask.getClass().getMethod("cancel").invoke(scheduledTask);
         } catch (Exception ignored) {
+        }
+    }
+
+    /**
+     * Teleport an entity safely on both Folia and Spigot/Paper.
+     * On Folia: uses entity.teleportAsync(location) via reflection.
+     * On Spigot/Paper: uses entity.teleport(location).
+     */
+    public static void teleportSafe(Entity entity, Location location) {
+        if (IS_FOLIA) {
+            try {
+                Method teleportAsync = entity.getClass().getMethod("teleportAsync", Location.class);
+                teleportAsync.invoke(entity, location);
+            } catch (Exception e) {
+                // Fallback — should not happen but just in case
+                entity.teleport(location);
+            }
+        } else {
+            entity.teleport(location);
         }
     }
 

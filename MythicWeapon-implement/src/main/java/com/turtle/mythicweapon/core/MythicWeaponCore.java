@@ -11,6 +11,7 @@ import com.turtle.mythicweapon.listener.PlayerJoinListener;
 import com.turtle.mythicweapon.listener.ShieldListener;
 import com.turtle.mythicweapon.listener.TridentHitListener;
 import com.turtle.mythicweapon.service.ExpiryTask;
+import com.turtle.mythicweapon.service.PendingRemovalManager;
 import com.turtle.mythicweapon.service.WeaponUpdater;
 import com.turtle.mythicweapon.manager.CombatDataManager;
 import com.turtle.mythicweapon.manager.CooldownManager;
@@ -55,6 +56,7 @@ public class MythicWeaponCore {
     private EffectManager effectManager;
     private CombatDataManager combatDataManager;
     private WeaponUpdater weaponUpdater;
+    private PendingRemovalManager pendingRemovalManager;
 
     public MythicWeaponCore(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -78,6 +80,7 @@ public class MythicWeaponCore {
         combatDataManager = new CombatDataManager();
         itemManager = new ItemManager(weaponRegistry);
         weaponUpdater = new WeaponUpdater(weaponRegistry, itemManager, plugin.getLogger());
+        pendingRemovalManager = new PendingRemovalManager(plugin);
 
         // Register skill factories
         registerSkillFactories();
@@ -98,12 +101,12 @@ public class MythicWeaponCore {
         plugin.getServer().getPluginManager().registerEvents(
                 new FishingRodListener(itemManager, cooldownManager), plugin);
         plugin.getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(weaponUpdater, plugin), plugin);
+                new PlayerJoinListener(weaponUpdater, pendingRemovalManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
 
         // Register commands
-        MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager);
+        MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager, pendingRemovalManager);
         PluginCommand cmd = plugin.getCommand("mythicweapon");
         if (cmd != null) {
             cmd.setExecutor(commandHandler);
@@ -155,7 +158,7 @@ public class MythicWeaponCore {
         plugin.getServer().getPluginManager().registerEvents(
                 new FishingRodListener(itemManager, cooldownManager), plugin);
         plugin.getServer().getPluginManager().registerEvents(
-                new PlayerJoinListener(weaponUpdater, plugin), plugin);
+                new PlayerJoinListener(weaponUpdater, pendingRemovalManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
 

@@ -97,4 +97,11 @@ command:
   reload-success: "&aPlugin reloaded in &f{time}ms"
   update-success: "&a✔ Đã cập nhật &f{count} &aitem cho toàn bộ player online!"
   help-update: "&e/mw update &7— Cập nhật item MythicWeapon cho toàn server"
+  removeall-usage: "&cSử dụng: /mythicweapon removeall <weapon_id>"
+  removeall-success: "&a✔ Đã xóa &f{count} &avũ khí &f{weapon}&a: &f{players} &aplayer online, &f{containers} &achest. Offline player sẽ bị xóa khi join. &7({time}ms)"
+  help-removeall: "&e/mw removeall <weapon_id> &7— Xóa vũ khí khỏi tất cả player + chest"
+  clearpending-empty: "&7Không có vũ khí nào trong danh sách chờ xóa."
+  clearpending-success: "&a✔ Đã xóa &f{count} &avũ khí khỏi danh sách chờ xóa offline."
+  help-clearpending: "&e/mw clearpending &7— Xóa danh sách chờ xóa cho offline player"
   no-permission: "&cBạn không có quyền sử dụng lệnh này!"
+

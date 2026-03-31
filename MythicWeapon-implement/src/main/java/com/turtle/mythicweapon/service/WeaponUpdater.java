@@ -92,6 +92,7 @@ public class WeaponUpdater {
 
     /**
      * If the given item is a MythicWeapon, return a freshly-created version from the registry.
+     * Preserves the expiry timestamp from the original item if present.
      * Returns null if not a MythicWeapon or weapon ID not found in registry.
      */
     private ItemStack tryUpdate(ItemStack item) {
@@ -100,6 +101,9 @@ public class WeaponUpdater {
         if (weaponId == null) return null;
         MythicWeapon weapon = weaponRegistry.getWeapon(weaponId);
         if (weapon == null) return null;
-        return itemManager.createItem(weapon);
+
+        // Preserve expiry from the original item
+        long expiry = ItemUtil.getExpiry(item);
+        return itemManager.createItem(weapon, expiry);
     }
 }

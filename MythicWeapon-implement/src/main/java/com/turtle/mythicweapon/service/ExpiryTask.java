@@ -45,6 +45,7 @@ import java.util.List;
 public class ExpiryTask {
 
     private final JavaPlugin plugin;
+    private boolean foliaContainerScanWarned = false;
 
     public ExpiryTask(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -77,20 +78,35 @@ public class ExpiryTask {
      * Removes expired items and updates lore on non-expired items.
      */
     private void checkAllContainers() {
+        if (SchedulerUtil.isFolia()) {
+            if (!foliaContainerScanWarned) {
+                foliaContainerScanWarned = true;
+                plugin.getLogger().warning("[ExpiryTask] Container expiry scan is disabled on Folia/Canvas "
+                        + "to prevent async world access violations.");
+            }
+            return;
+        }
+
         int removed = 0;
         for (World world : Bukkit.getWorlds()) {
             for (Chunk chunk : world.getLoadedChunks()) {
-                for (BlockState state : chunk.getTileEntities()) {
-                    if (state instanceof Container container) {
-                        removed += processContainerInventory(container.getInventory());
-                    }
-                }
+                removed += scanChunkContainers(chunk);
             }
         }
         if (removed > 0) {
             plugin.getLogger().info("[ExpiryTask] Removed " + removed
                     + " expired weapon(s) from containers in loaded chunks.");
         }
+    }
+
+    private static int scanChunkContainers(Chunk chunk) {
+        int removed = 0;
+        for (BlockState state : chunk.getTileEntities()) {
+            if (state instanceof Container container) {
+                removed += processContainerInventory(container.getInventory());
+            }
+        }
+        return removed;
     }
 
     /**

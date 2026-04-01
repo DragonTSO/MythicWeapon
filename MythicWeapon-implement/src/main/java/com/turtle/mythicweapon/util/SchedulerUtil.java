@@ -4,7 +4,9 @@ import java.lang.reflect.Method;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -82,6 +84,19 @@ public class SchedulerUtil {
             runGlobalDelayedFolia(plugin, task, Math.max(1, delayTicks));
         } else {
             Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
+        }
+    }
+
+    /**
+     * Run a task bound to a world region/chunk.
+     * On Folia: runs on RegionScheduler for the provided coordinates.
+     * On Spigot/Paper: runs on main thread.
+     */
+    public static void runRegionTask(JavaPlugin plugin, World world, int chunkX, int chunkZ, Runnable task) {
+        if (IS_FOLIA) {
+            runRegionTaskFolia(plugin, world, chunkX, chunkZ, task);
+        } else {
+            Bukkit.getScheduler().runTask(plugin, task);
         }
     }
 
@@ -200,6 +215,26 @@ public class SchedulerUtil {
                     if (task.isCancelled()) cancel();
                 }
             }.runTaskTimer(plugin, delayTicks, periodTicks);
+        }
+    }
+
+    private static void runRegionTaskFolia(JavaPlugin plugin, World world, int chunkX, int chunkZ, Runnable task) {
+        try {
+            Object regionScheduler = Bukkit.getServer().getClass()
+                    .getMethod("getRegionScheduler").invoke(Bukkit.getServer());
+            Method run = regionScheduler.getClass().getMethod(
+                    "run", Plugin.class, World.class, int.class, int.class, java.util.function.Consumer.class
+            );
+
+            int blockX = chunkX << 4;
+            int blockZ = chunkZ << 4;
+            java.util.function.Consumer<Object> consumer = scheduledTask -> task.run();
+            run.invoke(regionScheduler, plugin, world, blockX, blockZ, consumer);
+        } catch (Exception e) {
+            // Never fallback to Bukkit scheduler on Folia for world access.
+            // Running world/chunk reads there can trigger async thread violations.
+            plugin.getLogger().severe("Folia region task scheduling failed (chunk "
+                    + chunkX + "," + chunkZ + " in world " + world.getName() + "): " + e.getMessage());
         }
     }
 

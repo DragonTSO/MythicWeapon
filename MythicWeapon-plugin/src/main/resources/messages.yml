@@ -73,25 +73,23 @@ combat:
 death:
   weapon-lost: "&c☠ &eBạn đã mất &f{count} &eMythicWeapon khi chết!"
 
-# === Weapon Expiry Messages ===
+# === Weapon Messages ===
 weapon:
-  expired: "&c⏳ &eVũ khí {weapon} &eđã hết hạn và biến mất!"
-  expired-chat: "&c⏳ &eVũ khí {weapon} &eđã hết hạn sử dụng và đã bị xóa khỏi túi đồ của bạn."
+  banned-removed: "&c🚫 &eVũ khí {weapon} &eđã bị cấm và đã bị xóa!"
+  banned-removed-chat: "&c🚫 &eVũ khí {weapon} &eđã bị admin cấm sử dụng và đã bị xóa khỏi túi đồ của bạn."
 
 # === Command Messages ===
 command:
-  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId> [thời_hạn]"
+  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId>"
   player-not-found: "&cKhông tìm thấy người chơi: &f{player}"
   weapon-not-found: "&cKhông tìm thấy vũ khí: &f{weapon}"
   weapon-not-found-hint: "&7Dùng &f/mythicweapon list &7để xem danh sách."
-  give-success: "&aĐã trao {weapon} &acho &f{player} &7(Vĩnh viễn)"
-  give-success-expiry: "&aĐã trao {weapon} &acho &f{player} &7(Hết hạn sau: &f{duration}&7)"
-  invalid-duration: "&cThời hạn không hợp lệ: &f{input}&c. Ví dụ: 2d, 12h, 30m, 1d12h"
+  give-success: "&aĐã trao {weapon} &acho &f{player}"
   list-header: "&6=== MythicWeapon Danh Sách ==="
   list-entry: "&e- &f{weapon} &7({type})"
   list-total: "&7Tổng: &f{count} vũ khí"
   help-header: "&6=== MythicWeapon Help ==="
-  help-give: "&e/mythicweapon give <player> <weaponId> [thời_hạn] &7- Trao vũ khí (VD: 2d, 12h)"
+  help-give: "&e/mythicweapon give <player> <weaponId> &7- Trao vũ khí"
   help-list: "&e/mythicweapon list &7- Xem danh sách vũ khí"
   help-reload: "&e/mythicweapon reload &7- Tải lại config"
   reload-success: "&aPlugin reloaded in &f{time}ms"
@@ -103,5 +101,13 @@ command:
   clearpending-empty: "&7Không có vũ khí nào trong danh sách chờ xóa."
   clearpending-success: "&a✔ Đã xóa &f{count} &avũ khí khỏi danh sách chờ xóa offline."
   help-clearpending: "&e/mw clearpending &7— Xóa danh sách chờ xóa cho offline player"
+  remove-usage: "&cSử dụng: /mythicweapon remove <weapon_id>"
+  remove-success: "&a✔ Đã cấm vũ khí &f{weapon}&a! Xóa &f{count} &avũ khí từ &f{players} &aplayer online. Vũ khí sẽ bị xóa khi bất kỳ ai tương tác."
+  remove-already-banned: "&cVũ khí &f{weapon} &cđã bị cấm rồi!"
+  help-remove: "&e/mw remove <weapon_id> &7— Cấm vũ khí, tự xóa khi tương tác"
+  unban-usage: "&cSử dụng: /mythicweapon unban <weapon_id>"
+  unban-success: "&a✔ Đã gỡ cấm vũ khí &f{weapon}&a! Người chơi có thể sử dụng lại."
+  unban-not-banned: "&cVũ khí &f{weapon} &ckhông nằm trong danh sách cấm."
+  help-unban: "&e/mw unban <weapon_id> &7— Gỡ cấm vũ khí"
   no-permission: "&cBạn không có quyền sử dụng lệnh này!"
 

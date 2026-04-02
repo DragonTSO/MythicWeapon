@@ -10,7 +10,7 @@ description: Modular mythic weapon system with passive/active skills
 commands:
   mythicweapon:
     description: MythicWeapon main command
-    usage: /mythicweapon <give|list> [args]
+    usage: /mythicweapon <give|list|reload|update|removeall|remove|unban|clearpending> [args]
     permission: mythicweapon.admin
     aliases: [mw]
 

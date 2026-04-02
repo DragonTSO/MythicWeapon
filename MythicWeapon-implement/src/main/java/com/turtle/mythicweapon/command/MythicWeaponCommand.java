@@ -5,8 +5,8 @@ import com.turtle.mythicweapon.config.MessageConfig;
 import com.turtle.mythicweapon.core.MythicWeaponCore;
 import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
+import com.turtle.mythicweapon.service.BannedWeaponManager;
 import com.turtle.mythicweapon.service.PendingRemovalManager;
-import com.turtle.mythicweapon.util.ItemUtil;
 import com.turtle.mythicweapon.util.MessageUtil;
 
 import org.bukkit.Bukkit;
@@ -31,10 +31,12 @@ import java.util.stream.Collectors;
 
 /**
  * Command handler for /mythicweapon (/mw).
- * Subcommands: give, list, reload, update, removeall, clearpending
+ * Subcommands: give, list, reload, update, removeall, remove, unban, clearpending
  *
  * Usage: /mythicweapon give <player> <weapon_id> [duration]
  * Usage: /mythicweapon removeall <weapon_id>
+ * Usage: /mythicweapon remove <weapon_id>
+ * Usage: /mythicweapon unban <weapon_id>
  */
 public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
@@ -42,13 +44,16 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
     private final WeaponRegistry weaponRegistry;
     private final ItemManager itemManager;
     private final PendingRemovalManager pendingRemovalManager;
+    private final BannedWeaponManager bannedWeaponManager;
 
     public MythicWeaponCommand(MythicWeaponCore core, WeaponRegistry weaponRegistry,
-                               ItemManager itemManager, PendingRemovalManager pendingRemovalManager) {
+                               ItemManager itemManager, PendingRemovalManager pendingRemovalManager,
+                               BannedWeaponManager bannedWeaponManager) {
         this.core = core;
         this.weaponRegistry = weaponRegistry;
         this.itemManager = itemManager;
         this.pendingRemovalManager = pendingRemovalManager;
+        this.bannedWeaponManager = bannedWeaponManager;
     }
 
     @Override
@@ -71,6 +76,8 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             case "reload" -> handleReload(sender);
             case "update" -> handleUpdate(sender);
             case "removeall" -> handleRemoveAll(sender, args);
+            case "remove" -> handleRemove(sender, args);
+            case "unban" -> handleUnban(sender, args);
             case "clearpending" -> handleClearPending(sender);
             default -> sendHelp(sender);
         }
@@ -102,33 +109,12 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Parse optional duration (args[3])
-        long expiryMillis = -1;
-        String durationStr = null;
-        if (args.length >= 4) {
-            durationStr = args[3];
-            long durationMs = ItemUtil.parseDuration(durationStr);
-            if (durationMs <= 0) {
-                sender.sendMessage(MessageConfig.get("command.invalid-duration",
-                        "input", durationStr));
-                return;
-            }
-            expiryMillis = System.currentTimeMillis() + durationMs;
-        }
-
-        ItemStack item = itemManager.createItem(weapon, expiryMillis);
+        ItemStack item = itemManager.createItem(weapon);
         target.getInventory().addItem(item);
 
-        if (expiryMillis > 0) {
-            sender.sendMessage(MessageConfig.get("command.give-success-expiry",
-                    "weapon", weapon.getDisplayName(),
-                    "player", target.getName(),
-                    "duration", ItemUtil.formatDuration(ItemUtil.parseDuration(durationStr))));
-        } else {
-            sender.sendMessage(MessageConfig.get("command.give-success",
-                    "weapon", weapon.getDisplayName(),
-                    "player", target.getName()));
-        }
+        sender.sendMessage(MessageConfig.get("command.give-success",
+                "weapon", weapon.getDisplayName(),
+                "player", target.getName()));
     }
 
     private void handleList(CommandSender sender) {
@@ -239,9 +225,9 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
         // Notify player if any items were removed
         if (removed > 0) {
-            MessageUtil.sendActionBar(player, MessageConfig.get("weapon.expired",
+            MessageUtil.sendActionBar(player, MessageConfig.get("weapon.banned-removed",
                     "weapon", weaponDisplayName));
-            player.sendMessage(MessageConfig.get("weapon.expired-chat",
+            player.sendMessage(MessageConfig.get("weapon.banned-removed-chat",
                     "weapon", weaponDisplayName));
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 0.5f);
             player.getWorld().spawnParticle(Particle.SMOKE,
@@ -269,6 +255,84 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
                 "count", String.valueOf(count)));
     }
 
+    // ==================== REMOVE (BAN) ====================
+
+    /**
+     * Ban a weapon ID. All items with this ID will be automatically
+     * removed when any player interacts with them (pickup, hold, use, etc.).
+     *
+     * Usage: /mw remove <weapon_id>
+     */
+    private void handleRemove(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(MessageConfig.get("command.remove-usage"));
+            return;
+        }
+
+        String weaponId = args[1];
+        MythicWeapon weapon = weaponRegistry.getWeapon(weaponId);
+        String displayName = weapon != null ? weapon.getDisplayName() : weaponId;
+
+        if (bannedWeaponManager.isBanned(weaponId)) {
+            sender.sendMessage(MessageConfig.get("command.remove-already-banned",
+                    "weapon", displayName));
+            return;
+        }
+
+        // Ban the weapon
+        bannedWeaponManager.ban(weaponId);
+
+        // Also scan online players immediately to remove any they currently hold
+        int totalRemoved = 0;
+        int playersAffected = 0;
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            int removed = bannedWeaponManager.removeBannedFromInventory(player.getInventory());
+            removed += bannedWeaponManager.removeBannedFromInventory(player.getEnderChest());
+            if (removed > 0) {
+                totalRemoved += removed;
+                playersAffected++;
+                MessageUtil.sendActionBar(player, MessageConfig.get("weapon.banned-removed",
+                        "weapon", displayName));
+                player.sendMessage(MessageConfig.get("weapon.banned-removed-chat",
+                        "weapon", displayName));
+                player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 0.5f);
+                player.getWorld().spawnParticle(Particle.SMOKE,
+                        player.getLocation().add(0, 1.5, 0), 15, 0.3, 0.3, 0.3, 0.05);
+            }
+        }
+
+        sender.sendMessage(MessageConfig.get("command.remove-success",
+                "weapon", displayName,
+                "count", String.valueOf(totalRemoved),
+                "players", String.valueOf(playersAffected)));
+    }
+
+    /**
+     * Unban a weapon ID, allowing it to be used again.
+     *
+     * Usage: /mw unban <weapon_id>
+     */
+    private void handleUnban(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(MessageConfig.get("command.unban-usage"));
+            return;
+        }
+
+        String weaponId = args[1];
+        MythicWeapon weapon = weaponRegistry.getWeapon(weaponId);
+        String displayName = weapon != null ? weapon.getDisplayName() : weaponId;
+
+        if (!bannedWeaponManager.isBanned(weaponId)) {
+            sender.sendMessage(MessageConfig.get("command.unban-not-banned",
+                    "weapon", displayName));
+            return;
+        }
+
+        bannedWeaponManager.unban(weaponId);
+        sender.sendMessage(MessageConfig.get("command.unban-success",
+                "weapon", displayName));
+    }
+
     // ==================== HELP & TAB COMPLETE ====================
 
     private void sendHelp(CommandSender sender) {
@@ -278,6 +342,8 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessageConfig.get("command.help-reload"));
         sender.sendMessage(MessageConfig.get("command.help-update"));
         sender.sendMessage(MessageConfig.get("command.help-removeall"));
+        sender.sendMessage(MessageConfig.get("command.help-remove"));
+        sender.sendMessage(MessageConfig.get("command.help-unban"));
         sender.sendMessage(MessageConfig.get("command.help-clearpending"));
     }
 
@@ -291,21 +357,19 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             completions.add("reload");
             completions.add("update");
             completions.add("removeall");
+            completions.add("remove");
+            completions.add("unban");
             completions.add("clearpending");
         } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
             Bukkit.getOnlinePlayers().forEach(p -> completions.add(p.getName()));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("removeall")) {
             completions.addAll(weaponRegistry.getWeapons().keySet());
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("remove")) {
+            completions.addAll(weaponRegistry.getWeapons().keySet());
+        } else if (args.length == 2 && args[0].equalsIgnoreCase("unban")) {
+            completions.addAll(bannedWeaponManager.getBannedIds());
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
             completions.addAll(weaponRegistry.getWeapons().keySet());
-        } else if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
-            completions.add("1d");
-            completions.add("2d");
-            completions.add("3d");
-            completions.add("7d");
-            completions.add("30d");
-            completions.add("12h");
-            completions.add("1d12h");
         }
 
         String lastArg = args[args.length - 1].toLowerCase();

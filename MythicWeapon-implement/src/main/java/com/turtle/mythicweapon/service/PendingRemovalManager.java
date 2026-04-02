@@ -92,9 +92,9 @@ public class PendingRemovalManager {
         // Notify player for each weapon type removed
         if (totalRemoved > 0) {
             for (String weaponId : weaponsRemoved) {
-                MessageUtil.sendActionBar(player, MessageConfig.get("weapon.expired",
+                MessageUtil.sendActionBar(player, MessageConfig.get("weapon.banned-removed",
                         "weapon", weaponId));
-                player.sendMessage(MessageConfig.get("weapon.expired-chat",
+                player.sendMessage(MessageConfig.get("weapon.banned-removed-chat",
                         "weapon", weaponId));
             }
             player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1.0f, 0.5f);

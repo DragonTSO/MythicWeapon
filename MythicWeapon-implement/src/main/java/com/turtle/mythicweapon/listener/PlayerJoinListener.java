@@ -1,6 +1,5 @@
 package com.turtle.mythicweapon.listener;
 
-import com.turtle.mythicweapon.service.ExpiryTask;
 import com.turtle.mythicweapon.service.PendingRemovalManager;
 import com.turtle.mythicweapon.service.WeaponUpdater;
 import com.turtle.mythicweapon.util.SchedulerUtil;
@@ -15,8 +14,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 /**
  * On player join:
  * 1. Update their MythicWeapon items to the latest version
- * 2. Immediately remove any expired weapons (realtime expiry runs even while offline)
- * 3. Process pending removals (weapons admin-removed while this player was offline)
+ * 2. Process pending removals (weapons admin-removed while this player was offline)
  *
  * Uses a 1-tick delay so the player's inventory is fully synced from disk.
  */
@@ -45,10 +43,7 @@ public class PlayerJoinListener implements Listener {
                         + " item(s) for joining player " + player.getName());
             }
 
-            // 2. Immediately check & remove expired weapons (realtime)
-            ExpiryTask.checkAndRemoveExpired(player, plugin);
-
-            // 3. Process pending removals (from /mw removeall while offline)
+            // 2. Process pending removals (from /mw removeall while offline)
             if (pendingRemovalManager.hasPending()) {
                 int removed = pendingRemovalManager.processPendingRemovals(player);
                 if (removed > 0) {

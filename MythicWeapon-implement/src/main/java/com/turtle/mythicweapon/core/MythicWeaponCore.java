@@ -3,6 +3,7 @@ package com.turtle.mythicweapon.core;
 import com.turtle.mythicweapon.command.MythicWeaponCommand;
 import com.turtle.mythicweapon.config.WeaponConfigLoader;
 import com.turtle.mythicweapon.config.MessageConfig;
+import com.turtle.mythicweapon.listener.BannedWeaponListener;
 import com.turtle.mythicweapon.listener.CombatListener;
 import com.turtle.mythicweapon.listener.DeathListener;
 import com.turtle.mythicweapon.listener.FishingRodListener;
@@ -10,7 +11,7 @@ import com.turtle.mythicweapon.listener.InteractListener;
 import com.turtle.mythicweapon.listener.PlayerJoinListener;
 import com.turtle.mythicweapon.listener.ShieldListener;
 import com.turtle.mythicweapon.listener.TridentHitListener;
-import com.turtle.mythicweapon.service.ExpiryTask;
+import com.turtle.mythicweapon.service.BannedWeaponManager;
 import com.turtle.mythicweapon.service.PendingRemovalManager;
 import com.turtle.mythicweapon.service.WeaponUpdater;
 import com.turtle.mythicweapon.manager.CombatDataManager;
@@ -57,6 +58,7 @@ public class MythicWeaponCore {
     private CombatDataManager combatDataManager;
     private WeaponUpdater weaponUpdater;
     private PendingRemovalManager pendingRemovalManager;
+    private BannedWeaponManager bannedWeaponManager;
 
     public MythicWeaponCore(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -81,6 +83,7 @@ public class MythicWeaponCore {
         itemManager = new ItemManager(weaponRegistry);
         weaponUpdater = new WeaponUpdater(weaponRegistry, itemManager, plugin.getLogger());
         pendingRemovalManager = new PendingRemovalManager(plugin);
+        bannedWeaponManager = new BannedWeaponManager(plugin);
 
         // Register skill factories
         registerSkillFactories();
@@ -105,16 +108,17 @@ public class MythicWeaponCore {
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
 
+        // Register banned weapon listener
+        plugin.getServer().getPluginManager().registerEvents(
+                new BannedWeaponListener(bannedWeaponManager, plugin), plugin);
+
         // Register commands
-        MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager, pendingRemovalManager);
+        MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager, pendingRemovalManager, bannedWeaponManager);
         PluginCommand cmd = plugin.getCommand("mythicweapon");
         if (cmd != null) {
             cmd.setExecutor(commandHandler);
             cmd.setTabCompleter(commandHandler);
         }
-
-        // Start expiry checker task
-        new ExpiryTask(plugin).start();
 
         plugin.getLogger().info("MythicWeapon enabled successfully!");
     }
@@ -161,6 +165,8 @@ public class MythicWeaponCore {
                 new PlayerJoinListener(weaponUpdater, pendingRemovalManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new BannedWeaponListener(bannedWeaponManager, plugin), plugin);
 
         // Auto-update all online players after reload
         int updated = weaponUpdater.updateAllOnlinePlayers();

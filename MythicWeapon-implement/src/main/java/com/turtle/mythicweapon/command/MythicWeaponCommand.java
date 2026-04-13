@@ -4,6 +4,7 @@ import com.turtle.mythicweapon.api.weapon.MythicWeapon;
 import com.turtle.mythicweapon.config.MessageConfig;
 import com.turtle.mythicweapon.core.MythicWeaponCore;
 import com.turtle.mythicweapon.manager.ItemManager;
+import com.turtle.mythicweapon.manager.SelfDestructManager;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
 import com.turtle.mythicweapon.service.BannedWeaponManager;
 import com.turtle.mythicweapon.service.PendingRemovalManager;
@@ -31,9 +32,11 @@ import java.util.stream.Collectors;
 
 /**
  * Command handler for /mythicweapon (/mw).
- * Subcommands: give, list, reload, update, removeall, remove, unban, clearpending
+ * Subcommands: give, list, reload, update, removeall, remove, unban, clearpending, selfdestruct
  *
  * Usage: /mythicweapon give <player> <weapon_id> [duration]
+ * Usage: /mythicweapon selfdestruct add <time>
+ * Usage: /mythicweapon selfdestruct remove
  * Usage: /mythicweapon removeall <weapon_id>
  * Usage: /mythicweapon remove <weapon_id>
  * Usage: /mythicweapon unban <weapon_id>
@@ -45,15 +48,18 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
     private final ItemManager itemManager;
     private final PendingRemovalManager pendingRemovalManager;
     private final BannedWeaponManager bannedWeaponManager;
+    private final SelfDestructManager selfDestructManager;
 
     public MythicWeaponCommand(MythicWeaponCore core, WeaponRegistry weaponRegistry,
                                ItemManager itemManager, PendingRemovalManager pendingRemovalManager,
-                               BannedWeaponManager bannedWeaponManager) {
+                               BannedWeaponManager bannedWeaponManager,
+                               SelfDestructManager selfDestructManager) {
         this.core = core;
         this.weaponRegistry = weaponRegistry;
         this.itemManager = itemManager;
         this.pendingRemovalManager = pendingRemovalManager;
         this.bannedWeaponManager = bannedWeaponManager;
+        this.selfDestructManager = selfDestructManager;
     }
 
     @Override
@@ -79,20 +85,24 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             case "remove" -> handleRemove(sender, args);
             case "unban" -> handleUnban(sender, args);
             case "clearpending" -> handleClearPending(sender);
+            case "selfdestruct", "sd" -> handleSelfDestruct(sender, args);
             default -> sendHelp(sender);
         }
 
         return true;
     }
 
+    // ==================== GIVE (with optional time) ====================
+
     private void handleGive(CommandSender sender, String[] args) {
-        if (args.length < 3) {
+        if (args.length < 4) {
             sender.sendMessage(MessageConfig.get("command.give-usage"));
             return;
         }
 
         String playerName = args[1];
         String weaponId = args[2];
+        String timeStr = args[3];
 
         Player target = Bukkit.getPlayer(playerName);
         if (target == null) {
@@ -109,13 +119,84 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        ItemStack item = itemManager.createItem(weapon);
-        target.getInventory().addItem(item);
+        long seconds = SelfDestructManager.parseTime(timeStr);
+        if (seconds <= 0) {
+            sender.sendMessage(MessageConfig.get("command.selfdestruct-add-invalid-time"));
+            return;
+        }
 
-        sender.sendMessage(MessageConfig.get("command.give-success",
+        ItemStack item = itemManager.createItem(weapon);
+        selfDestructManager.addSelfDestruct(item, seconds);
+
+        target.getInventory().addItem(item);
+        sender.sendMessage(MessageConfig.get("command.give-success-timed",
                 "weapon", weapon.getDisplayName(),
-                "player", target.getName()));
+                "player", target.getName(),
+                "time", selfDestructManager.formatTime(seconds)));
     }
+
+    // ==================== SELF-DESTRUCT ====================
+
+    /**
+     * Handle /mw selfdestruct add <time> — add timer to item in hand
+     * Handle /mw selfdestruct remove  — remove timer from item in hand
+     */
+    private void handleSelfDestruct(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            sender.sendMessage("&cLệnh này chỉ dùng cho player!");
+            return;
+        }
+
+        if (args.length < 2) {
+            sender.sendMessage(MessageConfig.get("command.help-selfdestruct"));
+            sender.sendMessage(MessageConfig.get("command.help-selfdestruct-remove"));
+            return;
+        }
+
+        String action = args[1].toLowerCase();
+
+        switch (action) {
+            case "add" -> {
+                if (args.length < 3) {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-add-usage"));
+                    return;
+                }
+
+                if (player.getInventory().getItemInMainHand().getType().isAir()) {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-add-no-item"));
+                    return;
+                }
+
+                String timeStr = args[2];
+                long seconds = SelfDestructManager.parseTime(timeStr);
+
+                if (seconds <= 0) {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-add-invalid-time"));
+                    return;
+                }
+
+                if (selfDestructManager.addSelfDestruct(player, seconds)) {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-add-success",
+                            "time", selfDestructManager.formatTime(seconds)));
+                } else {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-add-no-item"));
+                }
+            }
+            case "remove" -> {
+                if (selfDestructManager.removeSelfDestruct(player)) {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-remove-success"));
+                } else {
+                    sender.sendMessage(MessageConfig.get("command.selfdestruct-remove-fail"));
+                }
+            }
+            default -> {
+                sender.sendMessage(MessageConfig.get("command.help-selfdestruct"));
+                sender.sendMessage(MessageConfig.get("command.help-selfdestruct-remove"));
+            }
+        }
+    }
+
+    // ==================== LIST / RELOAD / UPDATE ====================
 
     private void handleList(CommandSender sender) {
         sender.sendMessage(MessageConfig.get("command.list-header"));
@@ -144,14 +225,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
     // ==================== REMOVEALL ====================
 
-    /**
-     * Remove ALL instances of a specific weapon from:
-     * 1. ALL online players (inventory + ender chest)
-     * 2. ALL container blocks in loaded chunks (chests, barrels, shulkers, hoppers, etc.)
-     * 3. Save pending removal for offline players (processed on join)
-     *
-     * Usage: /mw removeall <weapon_id>
-     */
     private void handleRemoveAll(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sender.sendMessage(MessageConfig.get("command.removeall-usage"));
@@ -168,7 +241,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
         int containersScanned = 0;
         int containerItemsRemoved = 0;
 
-        // === 1. Online players: inventory + ender chest ===
         for (Player player : Bukkit.getOnlinePlayers()) {
             int removed = removeWeaponFromPlayer(player, weaponId, displayName);
             if (removed > 0) {
@@ -177,7 +249,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        // === 2. Containers in loaded chunks (all worlds) ===
         for (World world : Bukkit.getWorlds()) {
             for (Chunk chunk : world.getLoadedChunks()) {
                 for (BlockState state : chunk.getTileEntities()) {
@@ -194,12 +265,10 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
         }
         totalRemoved += containerItemsRemoved;
 
-        // === 3. Save pending for offline players ===
         pendingRemovalManager.addPending(weaponId);
 
         long elapsed = System.currentTimeMillis() - startTime;
 
-        // Report to admin
         sender.sendMessage(MessageConfig.get("command.removeall-success",
                 "weapon", displayName,
                 "count", String.valueOf(totalRemoved),
@@ -208,22 +277,11 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
                 "time", String.valueOf(elapsed)));
     }
 
-    /**
-     * Remove all instances of a weapon from a player's full inventory + ender chest.
-     * Sends expiry notification with effects.
-     *
-     * @return total items removed
-     */
     private int removeWeaponFromPlayer(Player player, String weaponId, String weaponDisplayName) {
         int removed = 0;
-
-        // Main inventory (includes all slots + off-hand)
         removed += PendingRemovalManager.removeWeaponFromInventory(player.getInventory(), weaponId);
-
-        // Ender chest
         removed += PendingRemovalManager.removeWeaponFromInventory(player.getEnderChest(), weaponId);
 
-        // Notify player if any items were removed
         if (removed > 0) {
             MessageUtil.sendActionBar(player, MessageConfig.get("weapon.banned-removed",
                     "weapon", weaponDisplayName));
@@ -237,10 +295,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
         return removed;
     }
 
-    /**
-     * Clear the pending removal list.
-     * Usage: /mw clearpending
-     */
     private void handleClearPending(CommandSender sender) {
         if (!pendingRemovalManager.hasPending()) {
             sender.sendMessage(MessageConfig.get("command.clearpending-empty"));
@@ -257,12 +311,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
     // ==================== REMOVE (BAN) ====================
 
-    /**
-     * Ban a weapon ID. All items with this ID will be automatically
-     * removed when any player interacts with them (pickup, hold, use, etc.).
-     *
-     * Usage: /mw remove <weapon_id>
-     */
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sender.sendMessage(MessageConfig.get("command.remove-usage"));
@@ -279,10 +327,8 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        // Ban the weapon
         bannedWeaponManager.ban(weaponId);
 
-        // Also scan online players immediately to remove any they currently hold
         int totalRemoved = 0;
         int playersAffected = 0;
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -307,11 +353,6 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
                 "players", String.valueOf(playersAffected)));
     }
 
-    /**
-     * Unban a weapon ID, allowing it to be used again.
-     *
-     * Usage: /mw unban <weapon_id>
-     */
     private void handleUnban(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sender.sendMessage(MessageConfig.get("command.unban-usage"));
@@ -345,6 +386,8 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessageConfig.get("command.help-remove"));
         sender.sendMessage(MessageConfig.get("command.help-unban"));
         sender.sendMessage(MessageConfig.get("command.help-clearpending"));
+        sender.sendMessage(MessageConfig.get("command.help-selfdestruct"));
+        sender.sendMessage(MessageConfig.get("command.help-selfdestruct-remove"));
     }
 
     @Override
@@ -360,6 +403,7 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             completions.add("remove");
             completions.add("unban");
             completions.add("clearpending");
+            completions.add("selfdestruct");
         } else if (args.length == 2 && args[0].equalsIgnoreCase("give")) {
             Bukkit.getOnlinePlayers().forEach(p -> completions.add(p.getName()));
         } else if (args.length == 2 && args[0].equalsIgnoreCase("removeall")) {
@@ -368,8 +412,25 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
             completions.addAll(weaponRegistry.getWeapons().keySet());
         } else if (args.length == 2 && args[0].equalsIgnoreCase("unban")) {
             completions.addAll(bannedWeaponManager.getBannedIds());
+        } else if (args.length == 2 && (args[0].equalsIgnoreCase("selfdestruct") || args[0].equalsIgnoreCase("sd"))) {
+            completions.add("add");
+            completions.add("remove");
         } else if (args.length == 3 && args[0].equalsIgnoreCase("give")) {
             completions.addAll(weaponRegistry.getWeapons().keySet());
+        } else if (args.length == 3 && (args[0].equalsIgnoreCase("selfdestruct") || args[0].equalsIgnoreCase("sd"))
+                && args[1].equalsIgnoreCase("add")) {
+            completions.add("1h");
+            completions.add("1d");
+            completions.add("7d");
+            completions.add("30d");
+            completions.add("1h30m");
+        } else if (args.length == 4 && args[0].equalsIgnoreCase("give")) {
+            // Time suggestions for give command
+            completions.add("1h");
+            completions.add("1d");
+            completions.add("7d");
+            completions.add("30d");
+            completions.add("1h30m");
         }
 
         String lastArg = args[args.length - 1].toLowerCase();

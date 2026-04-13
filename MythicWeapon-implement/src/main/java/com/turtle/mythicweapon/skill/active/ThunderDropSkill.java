@@ -92,7 +92,7 @@ public class ThunderDropSkill implements ActiveSkill {
             if (cooldownManager.isOnCooldown(player.getUniqueId(), skillId)) {
                 double rem = cooldownManager.getRemainingSeconds(player.getUniqueId(), skillId);
                 MessageUtil.sendActionBar(player, MessageConfig.get("combat.cooldown-remaining",
-                        "seconds", String.format("%.1f", rem)));
+                        "seconds", cooldownManager.formatTime(rem)));
                 return;
             }
 
@@ -121,7 +121,7 @@ public class ThunderDropSkill implements ActiveSkill {
             if (cooldownManager.isOnCooldown(player.getUniqueId(), skillId)) {
                 double rem = cooldownManager.getRemainingSeconds(player.getUniqueId(), skillId);
                 MessageUtil.sendActionBar(player, MessageConfig.get("combat.cooldown-remaining",
-                        "seconds", String.format("%.1f", rem)));
+                        "seconds", cooldownManager.formatTime(rem)));
                 return;
             }
 

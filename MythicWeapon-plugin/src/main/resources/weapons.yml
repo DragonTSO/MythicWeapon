@@ -208,6 +208,7 @@ weapons:
       combo-hits: 4.0
 
     enchantments:
+      lunge: 3
       sharpness: 5
       breach: 3
       unbreaking: 3

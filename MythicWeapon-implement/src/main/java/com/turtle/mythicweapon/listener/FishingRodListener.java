@@ -52,7 +52,7 @@ public class FishingRodListener implements Listener {
             double remaining = cooldownManager.getRemainingSeconds(fisher.getUniqueId(), SKILL_ID);
             event.setCancelled(true);
             MessageUtil.sendActionBar(fisher, MessageConfig.get("combat.cooldown-remaining",
-                    "seconds", String.format("%.1f", remaining)));
+                    "seconds", cooldownManager.formatTime(remaining)));
         }
     }
 
@@ -87,7 +87,7 @@ public class FishingRodListener implements Listener {
             double remaining = cooldownManager.getRemainingSeconds(fisher.getUniqueId(), SKILL_ID);
             Bukkit.getLogger().info("[MythicWeapon-Rod] On cooldown: " + remaining + "s remaining");
             MessageUtil.sendActionBar(fisher, MessageConfig.get("combat.cooldown-remaining",
-                    "seconds", String.format("%.1f", remaining)));
+                    "seconds", cooldownManager.formatTime(remaining)));
             return;
         }
 

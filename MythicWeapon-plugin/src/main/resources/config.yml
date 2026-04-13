@@ -3,3 +3,99 @@
 
 # Enable debug mode
 debug: false
+
+# ============================================================
+# Cooldown Configuration
+# Inspired by PearlSelfDestruct's time handling system
+# ============================================================
+cooldown:
+  # Time format suffixes (configurable display)
+  time-format:
+    days: "d"
+    hours: "h"
+    minutes: "m"
+    seconds: "s"
+
+  # Scan interval (ticks) for checking expired cooldowns
+  # 20 ticks = 1 second. Lower = more responsive, higher = better performance
+  scan-interval-ticks: 20
+
+  # Notifications when cooldown is ready
+  notifications:
+    # Show actionbar message when a skill comes off cooldown
+    cooldown-ready: true
+
+  # Sound effects
+  sound:
+    # Play sound when skill cooldown is ready
+    enabled: true
+    # Sound type (see: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html)
+    ready-sound: "ENTITY_EXPERIENCE_ORB_PICKUP"
+    # Volume (0.0 - 2.0)
+    ready-volume: 0.8
+    # Pitch (0.5 - 2.0)
+    ready-pitch: 1.2
+
+  # Persistence across server restarts
+  persistence:
+    # Save/restore cooldowns when server stops/starts
+    # Enable if you want cooldowns to survive server restarts
+    enabled: false
+
+# ============================================================
+# Self-Destruct Timer Configuration
+# Items with self-destruct will expire and be destroyed after X time
+# Inspired by PearlSelfDestruct plugin logic
+# ============================================================
+self-destruct:
+  # Time format suffixes
+  time-format:
+    days: "d"
+    hours: "h"
+    minutes: "m"
+    seconds: "s"
+
+  # Lore display format
+  lore:
+    # Title line shown above the timer
+    title: "&8⏰ Hạn sử dụng:"
+    # Active timer format ({time} will be replaced with remaining time)
+    time-format: "&7{time}"
+    # Dormant (crate) item format
+    dormant-format: "&8ᴄʀᴀᴛᴇs - {time}"
+
+  # Auto-apply self-destruct to existing weapons that don't have a timer
+  # When a player has a MythicWeapon without self-destruct, it will automatically
+  # get a timer with the default duration
+  auto-apply:
+    enabled: true
+    # Default duration for weapons without a timer (supports: 1d, 2h30m, 3600, etc.)
+    default-duration: "3d"
+
+  # Scan interval (ticks) for checking and updating items
+  # 20 ticks = 1 second
+  scan-interval-ticks: 20
+
+  # Performance tuning
+  performance:
+    # Only update lore when time difference exceeds this many seconds
+    # Prevents unnecessary lore updates every tick
+    # Items in last 60s will always update every second regardless
+    lore-update-threshold: 60
+
+  # Notifications
+  notifications:
+    # Show message when item expires
+    show-expired-message: true
+    # Show warning when item is about to expire
+    show-expiring-soon-message: true
+    # Threshold in seconds for "expiring soon" warning (default: 5 minutes)
+    expiring-soon-threshold: 300
+
+  # Sound effects
+  sound:
+    enabled: true
+    # Sound when item expires
+    expired-sound: "ENTITY_ITEM_BREAK"
+    expired-volume: 1.0
+    expired-pitch: 1.0

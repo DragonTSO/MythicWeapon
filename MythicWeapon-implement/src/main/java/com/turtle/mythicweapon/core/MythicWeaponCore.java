@@ -18,6 +18,7 @@ import com.turtle.mythicweapon.manager.CombatDataManager;
 import com.turtle.mythicweapon.manager.CooldownManager;
 import com.turtle.mythicweapon.manager.EffectManager;
 import com.turtle.mythicweapon.manager.ItemManager;
+import com.turtle.mythicweapon.manager.SelfDestructManager;
 import com.turtle.mythicweapon.manager.SkillRegistry;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
 import com.turtle.mythicweapon.skill.active.BloodSacrificeSkill;
@@ -59,6 +60,7 @@ public class MythicWeaponCore {
     private WeaponUpdater weaponUpdater;
     private PendingRemovalManager pendingRemovalManager;
     private BannedWeaponManager bannedWeaponManager;
+    private SelfDestructManager selfDestructManager;
 
     public MythicWeaponCore(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -77,13 +79,14 @@ public class MythicWeaponCore {
         // Initialize managers
         weaponRegistry = new WeaponRegistry();
         skillRegistry = new SkillRegistry();
-        cooldownManager = new CooldownManager();
+        cooldownManager = new CooldownManager(plugin);
         effectManager = new EffectManager();
         combatDataManager = new CombatDataManager();
         itemManager = new ItemManager(weaponRegistry);
         weaponUpdater = new WeaponUpdater(weaponRegistry, itemManager, plugin.getLogger());
         pendingRemovalManager = new PendingRemovalManager(plugin);
         bannedWeaponManager = new BannedWeaponManager(plugin);
+        selfDestructManager = new SelfDestructManager(plugin);
 
         // Register skill factories
         registerSkillFactories();
@@ -113,7 +116,9 @@ public class MythicWeaponCore {
                 new BannedWeaponListener(bannedWeaponManager, plugin), plugin);
 
         // Register commands
-        MythicWeaponCommand commandHandler = new MythicWeaponCommand(this, weaponRegistry, itemManager, pendingRemovalManager, bannedWeaponManager);
+        MythicWeaponCommand commandHandler = new MythicWeaponCommand(
+                this, weaponRegistry, itemManager, pendingRemovalManager,
+                bannedWeaponManager, selfDestructManager);
         PluginCommand cmd = plugin.getCommand("mythicweapon");
         if (cmd != null) {
             cmd.setExecutor(commandHandler);
@@ -139,8 +144,9 @@ public class MythicWeaponCore {
 
         // Clear and re-create managers
         weaponRegistry.clear();
-        cooldownManager.clearAll();
+        cooldownManager.reload();
         combatDataManager.clearAll();
+        selfDestructManager.reload();
         skillRegistry = new SkillRegistry();
 
         // Re-register skill factories
@@ -326,6 +332,12 @@ public class MythicWeaponCore {
     }
 
     public void onDisable() {
+        if (selfDestructManager != null) {
+            selfDestructManager.shutdown();
+        }
+        if (cooldownManager != null) {
+            cooldownManager.shutdown();
+        }
         if (weaponRegistry != null) {
             weaponRegistry.clear();
         }

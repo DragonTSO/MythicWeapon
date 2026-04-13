@@ -14,7 +14,7 @@ skill:
   dash-strike-use: "&b⚡ &eLướt Đao! &7Đòn kế tiếp gây thêm &c{damage} &7damage!"
   dash-strike-expire: "&7Đòn tấn công mạnh đã hết hiệu lực!"
   empowered-hit: "&c⚔ &eDòn tấn công mạnh! &c+{damage} damage"
-  cooldown-reset: "&a⚡ &eHạ mục tiêu! Cooldown giảm &a50%&e! Còn &f{seconds}s"
+  cooldown-reset: "&a⚡ &eHạ mục tiêu! Cooldown giảm &a50%&e! Còn &f{seconds}"
   shield-reflect: "&b🛡 &ePhản chiếu &c{damage} &edamage!"
   shield-stack: "&e🛡 Block Stack: &f{current}/{max}"
   shield-buff-active: "&a🛡 &eĐã kích hoạt &aRegeneration &e+ &bSpeed &etrong &f{seconds}s!"
@@ -67,7 +67,8 @@ skill:
 # === Combat Messages (Action Bar) ===
 combat:
   empowered-hit: "&c⚔ &eDòn tấn công mạnh! &c+{damage} damage"
-  cooldown-remaining: "&c⏳ &eCooldown: còn &f{seconds}s"
+  cooldown-remaining: "&c⏳ &eCooldown: còn &f{seconds}"
+  cooldown-ready: "&a✦ &eSkill &f{skill} &ađã sẵn sàng!"
 
 # === Death Messages ===
 death:
@@ -80,16 +81,17 @@ weapon:
 
 # === Command Messages ===
 command:
-  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId>"
+  give-usage: "&cSử dụng: /mythicweapon give <player> <weaponId> <time>"
   player-not-found: "&cKhông tìm thấy người chơi: &f{player}"
   weapon-not-found: "&cKhông tìm thấy vũ khí: &f{weapon}"
   weapon-not-found-hint: "&7Dùng &f/mythicweapon list &7để xem danh sách."
   give-success: "&aĐã trao {weapon} &acho &f{player}"
+  give-success-timed: "&aĐã trao {weapon} &acho &f{player} &a(hết hạn: &f{time}&a)"
   list-header: "&6=== MythicWeapon Danh Sách ==="
   list-entry: "&e- &f{weapon} &7({type})"
   list-total: "&7Tổng: &f{count} vũ khí"
   help-header: "&6=== MythicWeapon Help ==="
-  help-give: "&e/mythicweapon give <player> <weaponId> &7- Trao vũ khí"
+  help-give: "&e/mw give <player> <weaponId> [time] &7- Trao vũ khí (time: 1d2h30m)"
   help-list: "&e/mythicweapon list &7- Xem danh sách vũ khí"
   help-reload: "&e/mythicweapon reload &7- Tải lại config"
   reload-success: "&aPlugin reloaded in &f{time}ms"
@@ -110,4 +112,17 @@ command:
   unban-not-banned: "&cVũ khí &f{weapon} &ckhông nằm trong danh sách cấm."
   help-unban: "&e/mw unban <weapon_id> &7— Gỡ cấm vũ khí"
   no-permission: "&cBạn không có quyền sử dụng lệnh này!"
+  selfdestruct-add-usage: "&cSử dụng: /mw selfdestruct add <time>"
+  selfdestruct-add-success: "&a✔ Đã thêm thời gian tự hủy &f{time} &acho vật phẩm!"
+  selfdestruct-add-no-item: "&cBạn phải cầm vật phẩm trên tay!"
+  selfdestruct-add-invalid-time: "&cThời gian không hợp lệ! Ví dụ: 1d, 2h30m, 3600"
+  selfdestruct-remove-success: "&a✔ Đã xóa thời gian tự hủy khỏi vật phẩm!"
+  selfdestruct-remove-fail: "&cVật phẩm này không có thời gian tự hủy!"
+  help-selfdestruct: "&e/mw selfdestruct add <time> &7- Thêm hạn sử dụng (1d2h30m)"
+  help-selfdestruct-remove: "&e/mw selfdestruct remove &7- Xóa hạn sử dụng"
+
+# === Self-Destruct Messages ===
+self-destruct:
+  expired: "&c💥 &eVũ khí đã hết hạn sử dụng và đã bị phá hủy!"
+  expiring-soon: "&c⚠ &eVũ khí sắp hết hạn! Còn &f{time}"
 

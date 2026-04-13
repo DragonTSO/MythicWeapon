@@ -179,7 +179,7 @@ public class CombatListener implements Listener {
                     double remaining = cooldownManager.getRemainingSeconds(killer.getUniqueId(), skillId);
                     MessageUtil.sendActionBar(killer,
                             MessageConfig.get("skill.cooldown-reset",
-                                    "seconds", String.format("%.1f", remaining)));
+                                    "seconds", cooldownManager.formatTime(remaining)));
                 }
             }
             // Reset dash tracking

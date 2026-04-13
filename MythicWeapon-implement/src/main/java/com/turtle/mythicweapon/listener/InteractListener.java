@@ -53,7 +53,7 @@ public class InteractListener implements Listener {
             double remaining = cooldownManager.getRemainingSeconds(player.getUniqueId(), skill.getId());
             MessageUtil.sendActionBar(player,
                     MessageConfig.get("combat.cooldown-remaining",
-                            "seconds", String.format("%.1f", remaining)));
+                            "seconds", cooldownManager.formatTime(remaining)));
             return;
         }
 

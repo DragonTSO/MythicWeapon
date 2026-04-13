@@ -42,10 +42,12 @@ weapons:
 
     # Vanilla enchantments (key = minecraft enchantment name)
     enchantments:
-      sharpness: 6
+      sharpness: 5
+      sweeping_edge: 3
+      looting: 3
+      fire_aspect: 2
       unbreaking: 3
       mending: 1
-      smite: 3
 
     passive-skills:
       - id: bleed
@@ -90,6 +92,7 @@ weapons:
     enchantments:
       unbreaking: 3
       mending: 1
+      curse_of_vanishing: 1
 
   # ==========================================================
   # Cursed Rod — Fishing rod weapon
@@ -117,8 +120,9 @@ weapons:
       cooldown: 15.0
 
     enchantments:
-      unbreaking: 4
       lure: 3
+      luck_of_the_sea: 3
+      unbreaking: 3
       mending: 1
   # ==========================================================
   # Void Spear — Spear weapon
@@ -155,8 +159,11 @@ weapons:
 
     enchantments:
       sharpness: 5
+      sweeping_edge: 3
+      looting: 3
+      fire_aspect: 2
       unbreaking: 3
-      mending: 1  
+      mending: 1
     passive-skills:
       - id: glow
         chance: 30.0
@@ -208,9 +215,9 @@ weapons:
       combo-hits: 4.0
 
     enchantments:
-      lunge: 3
-      sharpness: 5
       breach: 3
+      wind_burst: 3
+      fire_aspect: 2
       unbreaking: 3
       mending: 1
     passive-skills:
@@ -256,9 +263,10 @@ weapons:
       damage: 8.0
 
     enchantments:
-      sharpness: 2
-      unbreaking: 3
       density: 3
+      wind_burst: 3
+      fire_aspect: 2
+      unbreaking: 3
       mending: 1
     passive-skills:
       - id: time_bomb
@@ -309,6 +317,9 @@ weapons:
 
     enchantments:
       sharpness: 5
+      sweeping_edge: 3
+      looting: 3
+      fire_aspect: 2
       unbreaking: 3
       mending: 1
 
@@ -362,6 +373,7 @@ weapons:
 
     enchantments:
       sharpness: 5
+      efficiency: 5
       fire_aspect: 2
       unbreaking: 3
       mending: 1
@@ -408,16 +420,16 @@ weapons:
       - "  &7  • &cNổ vùng &7tại vị trí cũ mục tiêu"
       - "  &7  • &63 tia sét &7đánh thẳng vào mục tiêu"
       - ""
-      - "&6Cooldown: &f25s"
+      - "&6Cooldown: &f90s"
       - "&5Hợp cho: &dEngager / Burst Assassin"
 
     stats:
       damage: 9.0
 
     enchantments:
-      sharpness: 5
+      impaling: 5
       loyalty: 3
-      impaling: 3
+      channeling: 1
       unbreaking: 3
       mending: 1
 
@@ -431,4 +443,4 @@ weapons:
 
     active-skill:
       id: trident_swap
-      cooldown: 25
+      cooldown: 90

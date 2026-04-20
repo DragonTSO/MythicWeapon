@@ -10,5 +10,6 @@ public enum WeaponType {
     BOW,
     STAFF,
     ROD,
-    TRIDENT
+    TRIDENT,
+    ELYTRA
 }

@@ -4,8 +4,10 @@ import com.turtle.mythicweapon.command.MythicWeaponCommand;
 import com.turtle.mythicweapon.config.WeaponConfigLoader;
 import com.turtle.mythicweapon.config.MessageConfig;
 import com.turtle.mythicweapon.listener.BannedWeaponListener;
+import com.turtle.mythicweapon.listener.BowExplosionListener;
 import com.turtle.mythicweapon.listener.CombatListener;
 import com.turtle.mythicweapon.listener.DeathListener;
+import com.turtle.mythicweapon.listener.ElytraListener;
 import com.turtle.mythicweapon.listener.FishingRodListener;
 import com.turtle.mythicweapon.listener.InteractListener;
 import com.turtle.mythicweapon.listener.PlayerJoinListener;
@@ -21,22 +23,28 @@ import com.turtle.mythicweapon.manager.ItemManager;
 import com.turtle.mythicweapon.manager.SelfDestructManager;
 import com.turtle.mythicweapon.manager.SkillRegistry;
 import com.turtle.mythicweapon.manager.WeaponRegistry;
+import com.turtle.mythicweapon.skill.active.ArrowRainSkill;
 import com.turtle.mythicweapon.skill.active.BloodSacrificeSkill;
 import com.turtle.mythicweapon.skill.active.DashStrikeSkill;
 import com.turtle.mythicweapon.skill.active.DemoBlastSkill;
+import com.turtle.mythicweapon.skill.active.DragonDiveSkill;
 import com.turtle.mythicweapon.skill.active.InfernoRageSkill;
+import com.turtle.mythicweapon.skill.active.InfernoZoneSkill;
 import com.turtle.mythicweapon.skill.active.SpeedBuffSkill;
 import com.turtle.mythicweapon.skill.active.ThunderDropSkill;
 import com.turtle.mythicweapon.skill.active.ThunderLaunchSkill;
 import com.turtle.mythicweapon.skill.active.TridentSwapSkill;
+import com.turtle.mythicweapon.skill.passive.ArmorBreakerPassive;
 import com.turtle.mythicweapon.skill.passive.BleedSkill;
 import com.turtle.mythicweapon.skill.passive.BloodLifestealSkill;
 import com.turtle.mythicweapon.skill.passive.BurnSkill;
+import com.turtle.mythicweapon.skill.passive.DragonWingPassive;
 import com.turtle.mythicweapon.skill.passive.GlowSkill;
 import com.turtle.mythicweapon.skill.passive.LightningStrikeSkill;
 import com.turtle.mythicweapon.skill.passive.StormComboSkill;
 import com.turtle.mythicweapon.skill.passive.TimeBombSkill;
 import com.turtle.mythicweapon.skill.passive.TridentStormPassive;
+import com.turtle.mythicweapon.skill.passive.WindFireArrowPassive;
 import com.turtle.mythicweapon.util.ItemUtil;
 import com.turtle.mythicweapon.hook.NexoHook;
 
@@ -83,7 +91,7 @@ public class MythicWeaponCore {
         effectManager = new EffectManager();
         combatDataManager = new CombatDataManager();
         itemManager = new ItemManager(weaponRegistry);
-        weaponUpdater = new WeaponUpdater(weaponRegistry, itemManager, plugin.getLogger());
+        weaponUpdater = new WeaponUpdater(weaponRegistry, itemManager, plugin.getLogger(), plugin);
         pendingRemovalManager = new PendingRemovalManager(plugin);
         bannedWeaponManager = new BannedWeaponManager(plugin);
         selfDestructManager = new SelfDestructManager(plugin);
@@ -110,6 +118,14 @@ public class MythicWeaponCore {
                 new PlayerJoinListener(weaponUpdater, pendingRemovalManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
+
+        // Register elytra listener (Thiên Dực Long Giáp)
+        plugin.getServer().getPluginManager().registerEvents(
+                new ElytraListener(itemManager, combatDataManager, cooldownManager, plugin), plugin);
+
+        // Register bow explosion listener (Phong Thần Cung)
+        plugin.getServer().getPluginManager().registerEvents(
+                new BowExplosionListener(itemManager, combatDataManager, plugin), plugin);
 
         // Register banned weapon listener
         plugin.getServer().getPluginManager().registerEvents(
@@ -171,6 +187,10 @@ public class MythicWeaponCore {
                 new PlayerJoinListener(weaponUpdater, pendingRemovalManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new TridentHitListener(itemManager, combatDataManager, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new ElytraListener(itemManager, combatDataManager, cooldownManager, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new BowExplosionListener(itemManager, combatDataManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new BannedWeaponListener(bannedWeaponManager, plugin), plugin);
 
@@ -328,6 +348,72 @@ public class MythicWeaponCore {
                 plugin,
                 combatDataManager,
                 config.getInt("cooldown", 25)
+        ));
+
+        // === THIÊN DỰC LONG GIÁP SKILLS (Elytra) ===
+
+        skillRegistry.registerPassive("dragon_wing", config -> new DragonWingPassive(
+                plugin,
+                config.getInt("boost-interval-ticks", 60),
+                config.getDouble("speed-boost-multiplier", 0.5),
+                config.getDouble("dodge-chance", 25.0),
+                config.getInt("landing-speed-level", 3),
+                config.getInt("landing-speed-duration", 4),
+                config.getInt("min-flight-duration-ticks", 100)
+        ));
+
+        skillRegistry.registerActive("dragon_dive", config -> new DragonDiveSkill(
+                plugin,
+                combatDataManager,
+                config.getDouble("shockwave-radius", 6.0),
+                config.getDouble("max-damage", 15.0),
+                config.getDouble("max-height-for-max-damage", 30.0),
+                config.getDouble("knockback-strength", 5.0),
+                config.getInt("cooldown", 50)
+        ));
+
+        // === PHONG THẦN CUNG SKILLS (Bow) ===
+
+        skillRegistry.registerPassive("wind_fire_arrow", config -> new WindFireArrowPassive(
+                config.getDouble("explosion-radius", 3.0),
+                config.getDouble("explosion-damage", 4.0),
+                config.getDouble("knockback-strength", 2.0),
+                config.getInt("fire-duration-ticks", 40),
+                config.getLong("explosion-cooldown-ms", 1000L)
+        ));
+
+        skillRegistry.registerActive("arrow_rain", config -> new ArrowRainSkill(
+                plugin,
+                config.getDouble("aoe-radius", 7.0),
+                config.getInt("arrow-count", 10),
+                config.getDouble("damage-per-arrow", 3.0),
+                config.getDouble("knockback-strength", 2.0),
+                config.getInt("enemy-slow-duration", 80),
+                config.getInt("enemy-slow-level", 2),
+                config.getInt("ally-speed-duration", 100),
+                config.getInt("ally-speed-level", 2),
+                config.getInt("rain-duration-ticks", 60),
+                config.getInt("cooldown", 40)
+        ));
+
+        // === HỎA DIỆM PHỦ SKILLS (Axe) ===
+
+        skillRegistry.registerPassive("armor_breaker", config -> new ArmorBreakerPassive(
+                combatDataManager,
+                config.getInt("hits-required", 3),
+                config.getDouble("third-hit-bonus-pct", 0.50),
+                config.getInt("shield-break-duration-ticks", 100),
+                config.getDouble("netherite-bonus-damage", 2.0),
+                config.getLong("combo-reset-ms", 5000L)
+        ));
+
+        skillRegistry.registerActive("inferno_zone", config -> new InfernoZoneSkill(
+                plugin,
+                config.getDouble("zone-radius", 5.0),
+                config.getInt("zone-duration", 6),
+                config.getDouble("damage-per-second", 3.0),
+                config.getInt("fire-duration-ticks", 60),
+                config.getInt("cooldown", 60)
         ));
     }
 

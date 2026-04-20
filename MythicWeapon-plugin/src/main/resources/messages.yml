@@ -63,6 +63,20 @@ skill:
   trident-swap-hit: "&b🔱 &6HOÁN ĐỔI! &eĐổi vị trí + 3 tia sét!"
   trident-swap-victim: "&c🔱 &cBạn bị hoán đổi vị trí! &4SÉT ĐANG TỚI!"
   trident-swap-expire: "&7Hoán Đổi Bão Tố đã hết hiệu lực!"
+  # === Thiên Dực Long Giáp (Elytra) ===
+  dragon-dive-use: "&5🐲 &dTHIÊN THẦN GIÁNG TRẦN! &7Đang lao xuống!"
+  dragon-dive-not-flying: "&c⚠ &eBạn phải đang bay để dùng skill này!"
+  dragon-dive-hit: "&5🐲 &dSHOCKWAVE! &c{damage} damage &7trúng &c{count} &7mục tiêu!"
+  dragon-wing-dodge: "&a✦ &eDodge! &7Né tránh mũi tên thành công!"
+  dragon-wing-land-speed: "&a⚡ &eHạ cánh! &aSpeed III &7trong &f{seconds}s!"
+  # === Phong Thần Cung (Bow) ===
+  arrow-rain-use: "&b🌪️ &eVẠN TIỄN PHONG BA! &7{count} mũi tên gió đang rơi!"
+  wind-fire-arrow-proc: "&6💥 &ePhong Hỏa Tiễn! &7Mũi tên nổ!"
+  # === Hỏa Diệm Phủ (Axe) ===
+  inferno-zone-use: "&4🔥 &cHỎA NGỤC TOÀN DIỆT! &7Vùng lửa &f{seconds}s!"
+  inferno-zone-shield-break: "&c🔥 &cShield bị phá vỡ bởi lửa địa ngục!"
+  armor-breaker-proc: "&4⚔ &cPHÁ GIÁP! &c+{damage} &7bonus damage!"
+  armor-breaker-stack: "&6⚔ &ePhá Giáp: &c{current}/{max} &7đòn"
 
 # === Combat Messages (Action Bar) ===
 combat:

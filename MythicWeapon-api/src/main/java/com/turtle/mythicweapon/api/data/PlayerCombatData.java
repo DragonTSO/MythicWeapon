@@ -84,6 +84,24 @@ public class PlayerCombatData {
     /** Whether Trident Swap is armed (next trident hit triggers swap) */
     private boolean tridentSwapActive;
 
+    // === Thiên Dực Long Giáp (Elytra) ===
+    /** Whether the elytra dive (Thiên Thần Giáng Trần) is active */
+    private boolean elytraDiveActive;
+
+    // === Hỏa Diệm Phủ (Axe) ===
+    /** Consecutive hit counter on the same target for Phá Giáp combo */
+    private int armorBreakerHitCount;
+    /** UUID of the last target hit for armor breaker combo tracking */
+    private UUID armorBreakerTargetId;
+    /** Timestamp of last armor breaker hit for combo reset (millis) */
+    private long armorBreakerLastHitTime;
+
+    // === Phong Thần Cung (Bow) ===
+    /** Whether the arrow rain (Vạn Tiễn Phong Ba) is charged and ready */
+    private boolean arrowRainCharged;
+    /** Cooldown tracker for passive explosions (Phong Hỏa Tiễn) */
+    private long lastArrowExplosionTime;
+
     /**
      * Consume the empowered strike state.
      *
@@ -183,5 +201,11 @@ public class PlayerCombatData {
         infernoRageMaxStacks = 0;
         infernoRageDamagePerStack = 0;
         tridentSwapActive = false;
+        elytraDiveActive = false;
+        armorBreakerHitCount = 0;
+        armorBreakerTargetId = null;
+        armorBreakerLastHitTime = 0;
+        arrowRainCharged = false;
+        lastArrowExplosionTime = 0;
     }
 }

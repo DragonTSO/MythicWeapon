@@ -444,3 +444,179 @@ weapons:
     active-skill:
       id: trident_swap
       cooldown: 90
+
+  # ==========================================================
+  # Thiên Dực Long Giáp — Dragon Elytra
+  # Mobility / Burst
+  # Active: Thiên Thần Giáng Trần (SHIFT khi bay) — Dive bomb
+  # Passive: Phong Dực — auto-boost, dodge, landing speed
+  # ==========================================================
+  dragon_elytra:
+    display-name: "&5🐲 &dThiên Dực Long Giáp &5🐲"
+    material: ELYTRA
+    weapon-type: ELYTRA
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Đôi cánh rèn từ vảy Ender Dragon"
+      - "&7Kẻ sở hữu thống trị bầu trời"
+      - ""
+      - "&c❖ Active: &fThiên Thần Giáng Trần &7[SHIFT khi bay]"
+      - "  &7Lao xuống từ trên cao → &cshockwave &7bán kính &e6 block"
+      - "  &7Damage tỉ lệ độ cao (tối đa &c15 damage&7)"
+      - "  &7Kẻ trúng: &chất tung 5 block &7+ &cSlow III 3s"
+      - "  &7Bản thân &amiễn fall damage"
+      - ""
+      - "&b❖ Passive: &fPhong Dực"
+      - "  &7Tự động boost mỗi &f3s &7khi bay (= 1 rocket)"
+      - "  &7Tốc độ bay &a+50%"
+      - "  &725% &adodge &7mũi tên khi bay"
+      - "  &7Hạ cánh sau bay 5s+: &aSpeed III 4s"
+      - ""
+      - "&6Cooldown: &f50s"
+      - "&5Hợp cho: &dMobility / Hit-and-Run"
+
+    stats:
+      shockwave-radius: 6.0
+      max-dive-damage: 15.0
+
+    enchantments:
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: dragon_wing
+        boost-interval-ticks: 60
+        speed-boost-multiplier: 0.5
+        dodge-chance: 25.0
+        landing-speed-level: 3
+        landing-speed-duration: 4
+        min-flight-duration-ticks: 100
+
+    active-skill:
+      id: dragon_dive
+      cooldown: 50
+      shockwave-radius: 6.0
+      max-damage: 15.0
+      max-height-for-max-damage: 30.0
+      knockback-strength: 5.0
+
+  # ==========================================================
+  # Phong Thần Cung — Wind God Bow
+  # AOE / Support
+  # Active: Vạn Tiễn Phong Ba — Arrow rain AOE
+  # Passive: Phong Hỏa Tiễn — Every arrow explodes on impact
+  # ==========================================================
+  wind_bow:
+    display-name: "&b🌪️ &fPhong Thần Cung &b🌪️"
+    material: BOW
+    weapon-type: BOW
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Cung thần được ban phước bởi thần gió"
+      - "&7Mỗi mũi tên mang theo cơn bão"
+      - ""
+      - "&c❖ Active: &fVạn Tiễn Phong Ba &7[RIGHT CLICK full charge]"
+      - "  &7Mưa tên gió AOE &e7 block &7tại điểm ngắm"
+      - "  &710 mũi tên trong 3s, mỗi mũi &c3 damage"
+      - "  &7Kẻ trong vùng: &cSlowness II 4s"
+      - "  &7Đồng đội: &aSpeed II 5s"
+      - ""
+      - "&b❖ Passive: &fPhong Hỏa Tiễn"
+      - "  &7Mỗi mũi tên khi va chạm &cgây nổ &7(3 block)"
+      - "  &7Vụ nổ: &c4 damage &7+ &chất tung 2 block &7+ &6Fire 2s"
+      - "  &7Không phá block (cosmetic)"
+      - "  &7Cooldown: &f1s &7giữa các vụ nổ"
+      - ""
+      - "&6Cooldown: &f40s"
+      - "&5Hợp cho: &dAOE / Support"
+
+    stats:
+      damage: 0.0
+
+    enchantments:
+      power: 5
+      infinity: 1
+      unbreaking: 3
+      punch: 2
+
+    passive-skills:
+      - id: wind_fire_arrow
+        explosion-radius: 3.0
+        explosion-damage: 4.0
+        knockback-strength: 2.0
+        fire-duration-ticks: 40
+        explosion-cooldown-ms: 1000
+
+    active-skill:
+      id: arrow_rain
+      cooldown: 40
+      aoe-radius: 7.0
+      arrow-count: 10
+      damage-per-arrow: 3.0
+      knockback-strength: 2.0
+      enemy-slow-duration: 80
+      enemy-slow-level: 2
+      ally-speed-duration: 100
+      ally-speed-level: 2
+      rain-duration-ticks: 60
+
+  # ==========================================================
+  # Hỏa Diệm Phủ — Inferno Cleaver
+  # Tank-Breaker
+  # Active: Hỏa Ngục Toàn Diệt — Fire zone + shield break
+  # Passive: Phá Giáp — 3-hit combo + Netherite bonus damage
+  # ==========================================================
+  inferno_cleaver:
+    display-name: "&4🔥 &cHỏa Diệm Phủ &4🔥"
+    material: NETHERITE_AXE
+    weapon-type: AXE
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Rìu chiến rèn trong dung nham địa ngục"
+      - "&7Chuyên phá vỡ mọi phòng thủ"
+      - ""
+      - "&c❖ Active: &fHỏa Ngục Toàn Diệt &7[RIGHT CLICK]"
+      - "  &7Tạo &cvùng lửa &7bán kính &e5 block &7trong &f6s"
+      - "  &7Kẻ đứng trong: &c3 damage/s &7+ &6Fire 3s"
+      - "  &7Phá vỡ Shield &cngay lập tức"
+      - ""
+      - "&b❖ Passive: &fPhá Giáp"
+      - "  &73 đòn liên tiếp vào cùng mục tiêu:"
+      - "  &7Đòn thứ 3: &c+50% damage &7+ &cphá Shield 5s"
+      - "  &7Mục tiêu mang Netherite: &c+2 bonus damage/đòn"
+      - ""
+      - "&6Cooldown: &f60s"
+      - "&5Hợp cho: &dTank-Breaker / Anti-Shield"
+
+    stats:
+      damage: 10.0
+      attack-speed: 1.0
+
+    enchantments:
+      sharpness: 4
+      unbreaking: 3
+      efficiency: 5
+      fire_aspect: 2
+      mending: 1
+
+    passive-skills:
+      - id: armor_breaker
+        hits-required: 3
+        third-hit-bonus-pct: 0.50
+        shield-break-duration-ticks: 100
+        netherite-bonus-damage: 2.0
+        combo-reset-ms: 5000
+
+    active-skill:
+      id: inferno_zone
+      cooldown: 60
+      zone-radius: 5.0
+      zone-duration: 6
+      damage-per-second: 3.0
+      fire-duration-ticks: 60

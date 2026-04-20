@@ -11,5 +11,6 @@ public enum WeaponType {
     STAFF,
     ROD,
     TRIDENT,
-    ELYTRA
+    ELYTRA,
+    CROSSBOW
 }

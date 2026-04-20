@@ -1,6 +1,7 @@
 package com.turtle.mythicweapon.manager;
 
 import com.turtle.mythicweapon.config.MessageConfig;
+import com.turtle.mythicweapon.hook.CrazyAuctionsHook;
 import com.turtle.mythicweapon.util.ItemUtil;
 import com.turtle.mythicweapon.util.MessageUtil;
 import com.turtle.mythicweapon.util.SchedulerUtil;
@@ -67,9 +68,11 @@ public class SelfDestructManager {
     private float expiredSoundPitch = 1.0f;
 
     private long scanIntervalTicks = 20L; // 1 second
+    private long ahScanIntervalTicks = 600L; // 30 seconds (AH scan is heavier)
 
     // ── Scan task ──
     private SchedulerUtil.CancellableTask scanTask;
+    private long ahScanCounter = 0;
 
     /** Regex to parse time strings like "1d2h30m10s" */
     private static final Pattern TIME_TOKEN = Pattern.compile("(\\d+)\\s*([dhmsDHMS])");
@@ -264,6 +267,17 @@ public class SelfDestructManager {
         scanTask.setAction(() -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 updatePlayerItems(player);
+            }
+
+            // Periodically scan CrazyAuctions AH for expired items
+            ahScanCounter += scanIntervalTicks;
+            if (CrazyAuctionsHook.isAvailable() && ahScanCounter >= ahScanIntervalTicks) {
+                ahScanCounter = 0;
+                int removed = CrazyAuctionsHook.scanAndRemoveExpiredItems();
+                if (removed > 0) {
+                    plugin.getLogger().info("[SelfDestruct] Removed " + removed
+                            + " expired MythicWeapon(s) from CrazyAuctions AH");
+                }
             }
         });
 

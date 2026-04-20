@@ -620,3 +620,72 @@ weapons:
       zone-duration: 6
       damage-per-second: 3.0
       fire-duration-ticks: 60
+
+  # ==========================================================
+  # Nỏ Thần Liên Châu — Divine Chain Crossbow
+  # VŨ KHÍ SỰ KIỆN — GIỖ TỔ HÙNG VƯƠNG (10/3 Âm lịch)
+  # AOE / Zoner
+  # Active: Kim Quy Trấn Thành (SHIFT + RIGHT CLICK khi đã nạp)
+  # Passive: Liên Châu Nối Tên (every 3rd arrow chains)
+  # ==========================================================
+  divine_crossbow:
+    display-name: "&6🏹 &eNỏ Thần Liên Châu &6🏹"
+    material: CROSSBOW
+    weapon-type: CROSSBOW
+    custom-model-data: 0
+    nexo-id: ""
+    unbreakable: true
+    lore:
+      - "&7Nỏ thần rèn từ vuốt Rồng Lạc Long Quân"
+      - "&7được Âu Cơ ban phước — mang linh khí ngàn đời"
+      - ""
+      - "&6🏮 &e&lSỰ KIỆN GIỖ TỔ HÙNG VƯƠNG &6🏮"
+      - ""
+      - "&c❖ Active: &fKim Quy Trấn Thành &7[SHIFT + RIGHT CLICK]"
+      - "  &7Bắn mũi tên mang linh khí &6Rùa Vàng Kim Quy"
+      - "  &7Triệu hồi &6mai rùa vàng khổng lồ &7(bán kính &e6 block&7)"
+      - "  &7Tồn tại &f5s&7. Đồng đội bên trong:"
+      - "  &a♥ Resistance I &7+ &a♥ Regeneration I"
+      - "  &7Kẻ địch bị nhốt: &cWither I 3s &7+ &cSlowness III 3s"
+      - "  &7Mai rùa &echặn mọi đạn &7từ bên ngoài"
+      - "  &7Khi biến mất: &c💥 Nổ 6 damage &7+ &cWeakness II 4s"
+      - ""
+      - "&b❖ Passive: &fLiên Châu Nối Tên"
+      - "  &7Mỗi mũi tên thứ &e3 &7→ &eTên Liên Châu"
+      - "  &7Bật sang kẻ địch gần nhất (&e5 block&7)"
+      - "  &7Gây &c60% damage gốc &7(tối đa &e3 lần bật&7)"
+      - "  &7Bắn trúng cùng mục tiêu &e2 lần trong 4s&7:"
+      - "  &7→ Đánh dấu &c❖ Ấn Lạc Hồng"
+      - "  &7Mũi tên tiếp theo: &c+50% damage &7+ &eGlowing 5s"
+      - ""
+      - "&6Cooldown: &f50s"
+      - "&5Hợp cho: &dAOE / Zoner"
+
+    stats:
+      damage: 0.0
+
+    enchantments:
+      quick_charge: 3
+      multishot: 1
+      unbreaking: 3
+      mending: 1
+
+    passive-skills:
+      - id: chain_arrow
+        chain-interval: 3
+        chain-bounce-range: 5.0
+        chain-damage-pct: 0.60
+        max-bounces: 3
+        mark-hits-required: 2
+        mark-window-ms: 4000
+        mark-damage-bonus: 0.50
+        mark-glow-duration: 100
+
+    active-skill:
+      id: golden_turtle_shield
+      cooldown: 50
+      dome-radius: 6.0
+      dome-duration-ticks: 100
+      trap-duration-ticks: 60
+      seal-explosion-damage: 6.0
+

@@ -1,5 +1,7 @@
 package com.turtle.mythicweapon.api.data;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -101,6 +103,14 @@ public class PlayerCombatData {
     private boolean arrowRainCharged;
     /** Cooldown tracker for passive explosions (Phong Hỏa Tiễn) */
     private long lastArrowExplosionTime;
+
+    // === Nỏ Thần Liên Châu (Crossbow) ===
+    /** Arrow shot counter for chain arrow passive (every 3rd arrow) */
+    private int crossbowShotCount;
+    /** Tracks Ấn Lạc Hồng marks: targetUUID -> [hitCount, lastHitTime] */
+    private final Map<UUID, long[]> lacHongMarks = new HashMap<>();
+    /** Whether Kim Quy Trấn Thành (golden turtle shield) is armed via SHIFT+RIGHT_CLICK */
+    private boolean goldenTurtleArmed;
 
     /**
      * Consume the empowered strike state.
@@ -207,5 +217,8 @@ public class PlayerCombatData {
         armorBreakerLastHitTime = 0;
         arrowRainCharged = false;
         lastArrowExplosionTime = 0;
+        crossbowShotCount = 0;
+        lacHongMarks.clear();
+        goldenTurtleArmed = false;
     }
 }

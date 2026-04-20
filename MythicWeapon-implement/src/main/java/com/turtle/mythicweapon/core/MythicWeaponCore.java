@@ -3,9 +3,11 @@ package com.turtle.mythicweapon.core;
 import com.turtle.mythicweapon.command.MythicWeaponCommand;
 import com.turtle.mythicweapon.config.WeaponConfigLoader;
 import com.turtle.mythicweapon.config.MessageConfig;
+import com.turtle.mythicweapon.hook.CrazyAuctionsHook;
 import com.turtle.mythicweapon.listener.BannedWeaponListener;
 import com.turtle.mythicweapon.listener.BowExplosionListener;
 import com.turtle.mythicweapon.listener.CombatListener;
+import com.turtle.mythicweapon.listener.CrossbowListener;
 import com.turtle.mythicweapon.listener.DeathListener;
 import com.turtle.mythicweapon.listener.ElytraListener;
 import com.turtle.mythicweapon.listener.FishingRodListener;
@@ -28,6 +30,7 @@ import com.turtle.mythicweapon.skill.active.BloodSacrificeSkill;
 import com.turtle.mythicweapon.skill.active.DashStrikeSkill;
 import com.turtle.mythicweapon.skill.active.DemoBlastSkill;
 import com.turtle.mythicweapon.skill.active.DragonDiveSkill;
+import com.turtle.mythicweapon.skill.active.GoldenTurtleShieldSkill;
 import com.turtle.mythicweapon.skill.active.InfernoRageSkill;
 import com.turtle.mythicweapon.skill.active.InfernoZoneSkill;
 import com.turtle.mythicweapon.skill.active.SpeedBuffSkill;
@@ -37,6 +40,7 @@ import com.turtle.mythicweapon.skill.active.TridentSwapSkill;
 import com.turtle.mythicweapon.skill.passive.ArmorBreakerPassive;
 import com.turtle.mythicweapon.skill.passive.BleedSkill;
 import com.turtle.mythicweapon.skill.passive.BloodLifestealSkill;
+import com.turtle.mythicweapon.skill.passive.ChainArrowPassive;
 import com.turtle.mythicweapon.skill.passive.BurnSkill;
 import com.turtle.mythicweapon.skill.passive.DragonWingPassive;
 import com.turtle.mythicweapon.skill.passive.GlowSkill;
@@ -83,6 +87,7 @@ public class MythicWeaponCore {
 
         // Initialize hooks (soft dependencies)
         NexoHook.init(plugin);
+        CrazyAuctionsHook.init(plugin);
 
         // Initialize managers
         weaponRegistry = new WeaponRegistry();
@@ -126,6 +131,10 @@ public class MythicWeaponCore {
         // Register bow explosion listener (Phong Thần Cung)
         plugin.getServer().getPluginManager().registerEvents(
                 new BowExplosionListener(itemManager, combatDataManager, plugin), plugin);
+
+        // Register crossbow listener (Nỏ Thần Liên Châu)
+        plugin.getServer().getPluginManager().registerEvents(
+                new CrossbowListener(itemManager, combatDataManager, cooldownManager, plugin), plugin);
 
         // Register banned weapon listener
         plugin.getServer().getPluginManager().registerEvents(
@@ -191,6 +200,8 @@ public class MythicWeaponCore {
                 new ElytraListener(itemManager, combatDataManager, cooldownManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new BowExplosionListener(itemManager, combatDataManager, plugin), plugin);
+        plugin.getServer().getPluginManager().registerEvents(
+                new CrossbowListener(itemManager, combatDataManager, cooldownManager, plugin), plugin);
         plugin.getServer().getPluginManager().registerEvents(
                 new BannedWeaponListener(bannedWeaponManager, plugin), plugin);
 
@@ -414,6 +425,31 @@ public class MythicWeaponCore {
                 config.getDouble("damage-per-second", 3.0),
                 config.getInt("fire-duration-ticks", 60),
                 config.getInt("cooldown", 60)
+        ));
+
+        // === NỎ THẦN LIÊN CHÂU SKILLS (Crossbow) ===
+
+        skillRegistry.registerPassive("chain_arrow", config -> new ChainArrowPassive(
+                plugin,
+                combatDataManager,
+                config.getInt("chain-interval", 3),
+                config.getDouble("chain-bounce-range", 5.0),
+                config.getDouble("chain-damage-pct", 0.60),
+                config.getInt("max-bounces", 3),
+                config.getInt("mark-hits-required", 2),
+                config.getLong("mark-window-ms", 4000L),
+                config.getDouble("mark-damage-bonus", 0.50),
+                config.getInt("mark-glow-duration", 100)
+        ));
+
+        skillRegistry.registerActive("golden_turtle_shield", config -> new GoldenTurtleShieldSkill(
+                plugin,
+                combatDataManager,
+                config.getDouble("dome-radius", 6.0),
+                config.getInt("dome-duration-ticks", 100),
+                config.getInt("trap-duration-ticks", 60),
+                config.getDouble("seal-explosion-damage", 6.0),
+                config.getInt("cooldown", 50)
         ));
     }
 

@@ -39,6 +39,9 @@ public class InteractListener implements Listener {
         MythicWeapon weapon = itemManager.getWeapon(item);
         if (weapon == null) return;
 
+        // CROSSBOW skills are triggered by SHIFT+RIGHT_CLICK, handled by CrossbowListener
+        if (weapon.getWeaponType() == WeaponType.CROSSBOW) return;
+
         ActiveSkill skill = weapon.getActiveSkill();
         if (skill == null) return;
 

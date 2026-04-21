@@ -101,6 +101,50 @@ public class SchedulerUtil {
     }
 
     /**
+     * Run a repeating task bound to a specific world location.
+     * On Folia: uses RegionScheduler (self-rescheduling pattern) so the task always
+     * runs on the region thread that owns the given location.
+     * On Spigot/Paper: uses classic BukkitRunnable on the main thread.
+     *
+     * <p>Use this instead of {@link #runEntityTimer} when the task accesses entities/blocks
+     * at a <b>fixed location</b> (e.g., fire zones, domes, arrow rain) rather than
+     * following the player.</p>
+     */
+    public static void runRegionTimer(JavaPlugin plugin, Location location, CancellableTask task,
+                                      long delayTicks, long periodTicks) {
+        if (IS_FOLIA) {
+            runRegionTimerFolia(plugin, location, task, Math.max(1, delayTicks), periodTicks);
+        } else {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (task.isCancelled()) {
+                        cancel();
+                        return;
+                    }
+                    task.run();
+                    if (task.isCancelled()) {
+                        cancel();
+                    }
+                }
+            }.runTaskTimer(plugin, delayTicks, periodTicks);
+        }
+    }
+
+    /**
+     * Run a delayed task bound to a specific world location.
+     * On Folia: uses RegionScheduler so the task runs on the correct region thread.
+     * On Spigot/Paper: uses classic BukkitRunnable on the main thread.
+     */
+    public static void runRegionDelayed(JavaPlugin plugin, Location location, Runnable task, long delayTicks) {
+        if (IS_FOLIA) {
+            runRegionDelayedFolia(plugin, location, task, Math.max(1, delayTicks));
+        } else {
+            Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks);
+        }
+    }
+
+    /**
      * Run a repeating global task (not entity-bound).
      * On Folia: uses GlobalRegionScheduler. On Spigot/Paper: uses BukkitRunnable.
      */
@@ -235,6 +279,70 @@ public class SchedulerUtil {
             // Running world/chunk reads there can trigger async thread violations.
             plugin.getLogger().severe("Folia region task scheduling failed (chunk "
                     + chunkX + "," + chunkZ + " in world " + world.getName() + "): " + e.getMessage());
+        }
+    }
+
+    /**
+     * Folia: repeating task at a fixed location using RegionScheduler.
+     * Uses self-rescheduling via runDelayed since RegionScheduler has no runAtFixedRate.
+     */
+    private static void runRegionTimerFolia(JavaPlugin plugin, Location location,
+                                            CancellableTask task, long delayTicks, long periodTicks) {
+        try {
+            Object regionScheduler = Bukkit.getServer().getClass()
+                    .getMethod("getRegionScheduler").invoke(Bukkit.getServer());
+            Method runDelayed = findMethod(regionScheduler.getClass(), "runDelayed");
+
+            scheduleNextRegionTick(regionScheduler, runDelayed, plugin, location, task,
+                    delayTicks, periodTicks);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Folia region timer scheduling failed at "
+                    + location + ": " + e.getMessage());
+        }
+    }
+
+    /**
+     * Self-rescheduling helper for region-based repeating tasks on Folia.
+     */
+    private static void scheduleNextRegionTick(Object regionScheduler, Method runDelayed,
+                                                JavaPlugin plugin, Location location,
+                                                CancellableTask task, long delay, long period) {
+        try {
+            java.util.function.Consumer<Object> consumer = scheduledTask -> {
+                if (task.isCancelled()) return;
+                task.run();
+                if (!task.isCancelled()) {
+                    // Reschedule for next period
+                    scheduleNextRegionTick(regionScheduler, runDelayed, plugin, location,
+                            task, period, period);
+                }
+            };
+
+            runDelayed.invoke(regionScheduler, plugin, location.getWorld(),
+                    location.getBlockX() >> 4, location.getBlockZ() >> 4,
+                    consumer, delay);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Folia region tick reschedule failed: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Folia: delayed task at a fixed location using RegionScheduler.
+     */
+    private static void runRegionDelayedFolia(JavaPlugin plugin, Location location,
+                                              Runnable task, long delayTicks) {
+        try {
+            Object regionScheduler = Bukkit.getServer().getClass()
+                    .getMethod("getRegionScheduler").invoke(Bukkit.getServer());
+            Method runDelayed = findMethod(regionScheduler.getClass(), "runDelayed");
+
+            java.util.function.Consumer<Object> consumer = scheduledTask -> task.run();
+            runDelayed.invoke(regionScheduler, plugin, location.getWorld(),
+                    location.getBlockX() >> 4, location.getBlockZ() >> 4,
+                    consumer, delayTicks);
+        } catch (Exception e) {
+            plugin.getLogger().severe("Folia region delayed scheduling failed at "
+                    + location + ": " + e.getMessage());
         }
     }
 

@@ -71,6 +71,12 @@ self-destruct:
     enabled: true
     # Default duration for weapons without a timer (supports: 1d, 2h30m, 3600, etc.)
     default-duration: "3d"
+    # Grace period (milliseconds) before auto-applying default timer to a weapon.
+    # Prevents race conditions where /mw give sets a custom timer (e.g. 30d)
+    # but auto-apply overwrites it with the default duration.
+    # Also prevents timer reset after plugin reload.
+    # Default: 5000 (5 seconds)
+    grace-period-ms: 5000
 
   # Scan interval (ticks) for checking and updating items
   # 20 ticks = 1 second

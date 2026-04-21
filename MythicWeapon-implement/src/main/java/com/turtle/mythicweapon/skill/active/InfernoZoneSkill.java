@@ -108,7 +108,7 @@ public class InfernoZoneSkill implements ActiveSkill {
             ticks[0]++;
         });
 
-        SchedulerUtil.runEntityTimer(plugin, player, zoneTask, 20L, 20L);
+        SchedulerUtil.runRegionTimer(plugin, center, zoneTask, 20L, 20L);
     }
 
     private void spawnFireBurst(Location center, double radius) {

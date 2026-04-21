@@ -42,6 +42,7 @@ public class SelfDestructManager {
     private final NamespacedKey timeKey;      // Original duration (seconds)
     private final NamespacedKey expiryKey;    // Absolute expiry timestamp (millis)
     private final NamespacedKey dormantKey;   // Dormant flag (not yet activated)
+    private final NamespacedKey firstSeenKey; // Timestamp when item first detected without timer
 
     // ── Cached config values ──
     private String dayStr = "d";
@@ -60,6 +61,7 @@ public class SelfDestructManager {
 
     // Auto-apply default duration to existing weapons without timer
     private boolean autoApplyEnabled = true;
+    private long autoApplyGraceMs = 5000; // 5 seconds grace period before auto-apply
     private long defaultDuration = 259200; // 3 days in seconds
 
     private boolean playExpiredSound = true;
@@ -69,6 +71,9 @@ public class SelfDestructManager {
 
     private long scanIntervalTicks = 20L; // 1 second
     private long ahScanIntervalTicks = 600L; // 30 seconds (AH scan is heavier)
+
+    // Grace period tracking: prevents auto-apply from overwriting explicitly set timers
+    private long lastInitTime;
 
     // ── Scan task ──
     private SchedulerUtil.CancellableTask scanTask;
@@ -82,6 +87,8 @@ public class SelfDestructManager {
         this.timeKey = new NamespacedKey(plugin, "mw_self_destruct_time");
         this.expiryKey = new NamespacedKey(plugin, "mw_self_destruct_expiry");
         this.dormantKey = new NamespacedKey(plugin, "mw_dormant_timer");
+        this.firstSeenKey = new NamespacedKey(plugin, "mw_first_seen");
+        this.lastInitTime = System.currentTimeMillis();
 
         cacheConfigValues();
         startScanTask();
@@ -115,6 +122,7 @@ public class SelfDestructManager {
         defaultDuration = SelfDestructManager.parseTime(
                 config.getString("self-destruct.auto-apply.default-duration", "3d"));
         if (defaultDuration <= 0) defaultDuration = 259200; // fallback 3d
+        autoApplyGraceMs = config.getLong("self-destruct.auto-apply.grace-period-ms", 5000);
 
         playExpiredSound = config.getBoolean("self-destruct.sound.enabled", true);
         expiredSound = config.getString("self-destruct.sound.expired-sound", "ENTITY_ITEM_BREAK");
@@ -153,6 +161,8 @@ public class SelfDestructManager {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(timeKey, PersistentDataType.LONG, seconds);
         pdc.set(dormantKey, PersistentDataType.BOOLEAN, true);
+        // Clear first-seen tracking if present (timer is being set explicitly)
+        pdc.remove(firstSeenKey);
 
         // Update lore
         List<String> lore = stripSelfDestructLore(meta.getLore());
@@ -181,6 +191,8 @@ public class SelfDestructManager {
         PersistentDataContainer pdc = meta.getPersistentDataContainer();
         pdc.set(timeKey, PersistentDataType.LONG, seconds);
         pdc.set(dormantKey, PersistentDataType.BOOLEAN, true);
+        // Clear first-seen tracking if present (timer is being set explicitly)
+        pdc.remove(firstSeenKey);
 
         // Update lore
         List<String> lore = stripSelfDestructLore(meta.getLore());
@@ -212,6 +224,7 @@ public class SelfDestructManager {
         pdc.remove(timeKey);
         pdc.remove(expiryKey);
         pdc.remove(dormantKey);
+        pdc.remove(firstSeenKey);
 
         meta.setLore(stripSelfDestructLore(meta.getLore()));
         item.setItemMeta(meta);
@@ -376,8 +389,37 @@ public class SelfDestructManager {
                 || pdc.has(dormantKey, PersistentDataType.BOOLEAN);
 
         // Auto-apply: if item is a MythicWeapon but has no self-destruct, add default timer
+        // Uses a dual grace period to prevent overwriting explicitly set timers:
+        //   1. Startup grace: skip auto-apply for N seconds after plugin init/reload
+        //   2. Item grace: track first-seen time per item, only apply after N seconds
         if (!hasAnyKey) {
             if (autoApplyEnabled && ItemUtil.isMythicWeapon(item)) {
+                long now = System.currentTimeMillis();
+
+                // 1. Startup/reload grace period: don't auto-apply right after init
+                if (now - lastInitTime < autoApplyGraceMs) {
+                    return;
+                }
+
+                // 2. Item-level grace period: first time seeing this item without timer?
+                Long firstSeen = pdc.get(firstSeenKey, PersistentDataType.LONG);
+                if (firstSeen == null) {
+                    // Mark first detection, don't apply yet — give time for explicit timer to be set
+                    pdc.set(firstSeenKey, PersistentDataType.LONG, now);
+                    item.setItemMeta(meta);
+                    if (slot >= 0) inventory.setItem(slot, item);
+                    return;
+                }
+
+                // Only auto-apply if item has been without timer for longer than grace period
+                if (now - firstSeen < autoApplyGraceMs) {
+                    return;
+                }
+
+                // Grace period elapsed — safe to auto-apply default timer
+                pdc.remove(firstSeenKey);
+                item.setItemMeta(meta);
+
                 addSelfDestruct(item, defaultDuration);
                 if (slot >= 0) inventory.setItem(slot, item);
                 plugin.getLogger().info("[SelfDestruct] Auto-applied " + formatTime(defaultDuration)
@@ -624,6 +666,8 @@ public class SelfDestructManager {
             scanTask.cancel();
             scanTask = null;
         }
+        // Reset grace period so auto-apply doesn't kick in immediately after reload
+        lastInitTime = System.currentTimeMillis();
         cacheConfigValues();
         startScanTask();
     }

@@ -127,6 +127,9 @@ public class MythicWeaponCommand implements CommandExecutor, TabCompleter {
 
         ItemStack item = itemManager.createItem(weapon);
         selfDestructManager.addSelfDestruct(item, seconds);
+        // Immediately activate so item enters inventory with expiryKey already set
+        // This prevents race condition where scan task auto-applies 3d default
+        selfDestructManager.activateDormantTimer(item);
 
         target.getInventory().addItem(item);
         sender.sendMessage(MessageConfig.get("command.give-success-timed",

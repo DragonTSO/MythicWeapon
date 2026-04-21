@@ -185,10 +185,10 @@ public class GoldenTurtleShieldSkill implements ActiveSkill {
                 center.getWorld().playSound(center, Sound.ENTITY_GUARDIAN_AMBIENT, 0.4f, 0.5f);
             }
         });
-        SchedulerUtil.runEntityTimer(plugin, caster, domeTask, 0L, 5L); // every 5 ticks
+        SchedulerUtil.runRegionTimer(plugin, center, domeTask, 0L, 5L); // every 5 ticks
 
         // === Dome expiry: seal explosion ===
-        SchedulerUtil.runEntityDelayed(plugin, caster, () -> {
+        SchedulerUtil.runRegionDelayed(plugin, center, () -> {
             domeTask.cancel();
 
             // Explosion visual

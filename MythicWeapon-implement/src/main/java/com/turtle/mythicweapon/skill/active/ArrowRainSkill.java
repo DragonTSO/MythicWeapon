@@ -133,13 +133,13 @@ public class ArrowRainSkill implements ActiveSkill {
             }
         });
 
-        SchedulerUtil.runEntityTimer(plugin, player, rainTask, 10L, ticksBetweenArrows);
+        SchedulerUtil.runRegionTimer(plugin, targetLoc, rainTask, 10L, ticksBetweenArrows);
 
         // Zone indicator: particle ring
         spawnZoneRing(targetLoc, aoeRadius);
 
         // Auto-remove arrows after the rain ends (cleanup)
-        SchedulerUtil.runEntityDelayed(plugin, player, () -> {
+        SchedulerUtil.runRegionDelayed(plugin, targetLoc, () -> {
             for (Entity e : targetLoc.getWorld().getNearbyEntities(targetLoc,
                     aoeRadius + 5, 20, aoeRadius + 5)) {
                 if (e instanceof Arrow a && "§wind_arrow".equals(a.getCustomName())) {

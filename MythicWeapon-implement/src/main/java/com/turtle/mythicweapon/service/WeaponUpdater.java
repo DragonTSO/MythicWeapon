@@ -41,6 +41,7 @@ public class WeaponUpdater {
     private NamespacedKey sdTimeKey;
     private NamespacedKey sdExpiryKey;
     private NamespacedKey sdDormantKey;
+    private NamespacedKey sdFirstSeenKey;
 
     /**
      * Lazily init the NamespacedKeys (so we don't need to inject SelfDestructManager).
@@ -50,6 +51,7 @@ public class WeaponUpdater {
             sdTimeKey = new NamespacedKey(plugin, "mw_self_destruct_time");
             sdExpiryKey = new NamespacedKey(plugin, "mw_self_destruct_expiry");
             sdDormantKey = new NamespacedKey(plugin, "mw_dormant_timer");
+            sdFirstSeenKey = new NamespacedKey(plugin, "mw_first_seen");
         }
     }
 
@@ -167,6 +169,8 @@ public class WeaponUpdater {
             }
 
             if (hasTimer) {
+                // Clear stale first-seen tracking (not needed when timer is preserved)
+                newPdc.remove(sdFirstSeenKey);
                 newItem.setItemMeta(newMeta);
                 // SelfDestructManager will update the lore on next scan tick
             }
